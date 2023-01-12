@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.rtseki.witch.backend.model.user.UserRepository;
+import com.rtseki.witch.backend.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

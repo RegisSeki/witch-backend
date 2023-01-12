@@ -59,7 +59,6 @@ public class User implements UserDetails {
 	private String email;
 	
 	@NotBlank
-	@Size(max = 10)
 	private String password;
 
 	@Enumerated(EnumType.STRING)
@@ -69,7 +68,7 @@ public class User implements UserDetails {
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return List.of(new SimpleGrantedAuthority(role.name()));
 	}
-
+	
 	@Override
 	public String getPassword() {
 		return password;
