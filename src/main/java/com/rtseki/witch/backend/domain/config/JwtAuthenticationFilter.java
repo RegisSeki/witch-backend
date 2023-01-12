@@ -1,4 +1,4 @@
-package com.rtseki.witch.backend.config;
+package com.rtseki.witch.backend.domain.config;
 
 import java.io.IOException;
 
@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.rtseki.witch.backend.domain.service.JwtService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

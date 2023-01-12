@@ -1,4 +1,4 @@
-package com.rtseki.witch.backend.controller.auth;
+package com.rtseki.witch.backend.domain.service;
 
 import java.util.UUID;
 
@@ -7,10 +7,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.rtseki.witch.backend.config.JwtService;
-import com.rtseki.witch.backend.model.user.Role;
-import com.rtseki.witch.backend.model.user.User;
-import com.rtseki.witch.backend.repository.UserRepository;
+import com.rtseki.witch.backend.api.model.request.AuthenticationRequest;
+import com.rtseki.witch.backend.api.model.request.RegisterRequest;
+import com.rtseki.witch.backend.api.model.response.AuthenticationResponse;
+import com.rtseki.witch.backend.domain.model.Role;
+import com.rtseki.witch.backend.domain.model.User;
+import com.rtseki.witch.backend.domain.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

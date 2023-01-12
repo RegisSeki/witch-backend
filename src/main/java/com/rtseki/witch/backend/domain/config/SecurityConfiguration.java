@@ -1,4 +1,4 @@
-package com.rtseki.witch.backend.config;
+package com.rtseki.witch.backend.domain.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

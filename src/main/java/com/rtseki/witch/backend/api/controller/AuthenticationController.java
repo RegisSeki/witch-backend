@@ -1,10 +1,17 @@
-package com.rtseki.witch.backend.controller.auth;
+package com.rtseki.witch.backend.api.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.rtseki.witch.backend.api.model.request.AuthenticationRequest;
+import com.rtseki.witch.backend.api.model.request.RegisterRequest;
+import com.rtseki.witch.backend.api.model.response.AuthenticationResponse;
+import com.rtseki.witch.backend.domain.service.AuthenticationService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,8 +23,9 @@ public class AuthenticationController {
 	private final AuthenticationService authenticationService;
 	
 	@PostMapping("/register")
-	public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
-		return ResponseEntity.ok(authenticationService.register(request));
+	@ResponseStatus(HttpStatus.CREATED)
+	public AuthenticationResponse register(@RequestBody RegisterRequest request) {
+		return authenticationService.register(request);
 	}
 	
 	@PostMapping("/authenticate")

@@ -1,4 +1,4 @@
-package com.rtseki.witch.backend.model.user;
+package com.rtseki.witch.backend.domain.model;
 
 import java.util.Collection;
 import java.util.List;

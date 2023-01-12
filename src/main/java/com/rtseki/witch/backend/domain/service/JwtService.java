@@ -1,4 +1,4 @@
-package com.rtseki.witch.backend.config;
+package com.rtseki.witch.backend.domain.service;
 
 import java.security.Key;
 import java.util.Date;

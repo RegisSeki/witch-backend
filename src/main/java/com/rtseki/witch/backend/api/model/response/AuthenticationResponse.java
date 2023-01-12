@@ -1,4 +1,4 @@
-package com.rtseki.witch.backend.controller.auth;
+package com.rtseki.witch.backend.api.model.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
