@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.rtseki.witch.backend.api.assembler.UserAssembler;
 import com.rtseki.witch.backend.api.model.request.AuthenticationRequest;
-import com.rtseki.witch.backend.api.model.request.RegisterRequest;
+import com.rtseki.witch.backend.api.model.request.UserRequest;
 import com.rtseki.witch.backend.api.model.response.AuthenticationResponse;
+import com.rtseki.witch.backend.domain.model.User;
 import com.rtseki.witch.backend.domain.service.AuthenticationService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,11 +23,13 @@ import lombok.RequiredArgsConstructor;
 public class AuthenticationController {
 
 	private final AuthenticationService authenticationService;
+	private final UserAssembler userAssembler;
 	
 	@PostMapping("/register")
 	@ResponseStatus(HttpStatus.CREATED)
-	public AuthenticationResponse register(@RequestBody RegisterRequest request) {
-		return authenticationService.register(request);
+	public AuthenticationResponse register(@RequestBody UserRequest request) {
+		User newUser = userAssembler.toModel(request);
+		return authenticationService.register(newUser);
 	}
 	
 	@PostMapping("/authenticate")
