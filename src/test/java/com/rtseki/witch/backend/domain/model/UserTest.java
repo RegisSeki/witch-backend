@@ -1,4 +1,4 @@
-package com.rtseki.witch.backend.models.user;
+package com.rtseki.witch.backend.domain.model;
 
 import java.util.UUID;
 
@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-
-import com.rtseki.witch.backend.domain.model.User;
 
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolationException;

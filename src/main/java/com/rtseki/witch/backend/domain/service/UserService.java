@@ -30,7 +30,7 @@ public class UserService {
 		}
 		
 		User createdUser = User.builder()
-				.userId(UUID.randomUUID().toString())
+				.userId(generateUserId())
 				.firstname(user.getFirstname())
 				.lastname(user.getLastname())
 				.email(user.getEmail())
@@ -46,5 +46,18 @@ public class UserService {
 		}
 		
 		return createdUser;
+	}
+	
+	private String generateUserId() {
+		String userId;
+		String existedUserId;
+		
+		do {
+			userId = UUID.randomUUID().toString();
+			
+			existedUserId = userRepository.findByUserId(userId).toString();
+		} while (existedUserId != null && userId == existedUserId);
+			
+		return userId;
 	}
 }
