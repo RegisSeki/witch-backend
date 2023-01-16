@@ -1,4 +1,4 @@
-package com.rtseki.witch.backend.api.model.response;
+package com.rtseki.witch.backend.api.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

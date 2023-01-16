@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rtseki.witch.backend.api.assembler.UserAssembler;
-import com.rtseki.witch.backend.api.model.request.AuthenticationRequest;
-import com.rtseki.witch.backend.api.model.request.UserRequest;
-import com.rtseki.witch.backend.api.model.response.AuthenticationResponse;
+import com.rtseki.witch.backend.api.dto.request.AuthenticationRequest;
+import com.rtseki.witch.backend.api.dto.request.UserRequest;
+import com.rtseki.witch.backend.api.dto.response.AuthenticationResponse;
 import com.rtseki.witch.backend.domain.model.User;
 import com.rtseki.witch.backend.domain.service.AuthenticationService;
 
@@ -28,7 +28,7 @@ public class AuthenticationController {
 	@PostMapping("/register")
 	@ResponseStatus(HttpStatus.CREATED)
 	public AuthenticationResponse register(@RequestBody UserRequest request) {
-		User newUser = userAssembler.toModel(request);
+		User newUser = userAssembler.toDto(request);
 		return authenticationService.register(newUser);
 	}
 	

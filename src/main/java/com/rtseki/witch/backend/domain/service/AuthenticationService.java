@@ -4,8 +4,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
-import com.rtseki.witch.backend.api.model.request.AuthenticationRequest;
-import com.rtseki.witch.backend.api.model.response.AuthenticationResponse;
+import com.rtseki.witch.backend.api.dto.request.AuthenticationRequest;
+import com.rtseki.witch.backend.api.dto.response.AuthenticationResponse;
 import com.rtseki.witch.backend.domain.model.User;
 import com.rtseki.witch.backend.domain.repository.UserRepository;
 
