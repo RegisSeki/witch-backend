@@ -18,6 +18,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.rtseki.witch.backend.domain.exception.BusinessException;
+import com.rtseki.witch.backend.domain.exception.ResourceNotFoundException;
 
 import lombok.AllArgsConstructor;
 
@@ -51,6 +52,18 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(BusinessException.class)
 	public ResponseEntity<Object> handleBusiness(BusinessException ex, WebRequest request) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
+		
+		Problem problem = new Problem();
+		problem.setStatus(status.value()); 
+		problem.setDateHour(OffsetDateTime.now()); 
+		problem.setTitle(ex.getMessage());
+		
+		return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+	}
+	
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ResponseEntity<Object> handleResourceNotFound(ResourceNotFoundException ex, WebRequest request) {
+		HttpStatus status = HttpStatus.NOT_FOUND;
 		
 		Problem problem = new Problem();
 		problem.setStatus(status.value()); 

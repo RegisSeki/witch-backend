@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
 
 import com.rtseki.witch.backend.domain.model.User;
 import com.rtseki.witch.backend.domain.repository.UserRepository;

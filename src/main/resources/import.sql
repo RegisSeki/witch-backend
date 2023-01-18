@@ -1,0 +1,12 @@
+INSERT INTO _category(name, description) VALUES ('Foods','Things to eat');
+INSERT INTO _category(name, description) VALUES ('Clothes','Things to wear');
+INSERT INTO _category(name, description) VALUES ('Eletronics','Things to use');
+INSERT INTO _category(name, description) VALUES ('Misc','No distinct category');
+INSERT INTO _category(name, description) VALUES ('Cat','Things for the cat');
+INSERT INTO _category(name, description) VALUES ('Cleaning','Things to keep the house clean');
+INSERT INTO _category(name, description) VALUES ('Personal Care','Things to keep clean');
+INSERT INTO _category(name, description) VALUES ('Energy','Gas, energy');
+INSERT INTO _category(name, description) VALUES ('Candy','Things to fatten');
+INSERT INTO _category(name, description) VALUES ('Healthy','Doctor, exams');
+INSERT INTO _category(name, description) VALUES ('Drugstore','Medicine, drugs');
+INSERT INTO _category(name, description) VALUES ('Mobility','Uber');
