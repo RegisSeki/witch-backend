@@ -11,20 +11,17 @@ import com.rtseki.witch.backend.domain.exception.ResourceNotFoundException;
 import com.rtseki.witch.backend.domain.model.Category;
 import com.rtseki.witch.backend.domain.repository.CategoryRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class CategoryService {
 
 	@Autowired
 	private CategoryRepository categoryRepository;
-	
+
 	@Transactional
 	public Category create(Category category) {
-		boolean isCategoryExist = categoryRepository.findByName(category.getName())
-				.stream().anyMatch(existCategory -> !existCategory.equals(category));
-		
-		if(isCategoryExist) {
-			throw new BusinessException("Category name is already taken");
-		}
+		checkDuplicateCategoryName(category);
 		
 		return categoryRepository.save(category);
 	}
@@ -36,5 +33,30 @@ public class CategoryService {
 	public Category findById(Long categoryId) {
 		return categoryRepository.findById(categoryId)
 				.orElseThrow(() -> new ResourceNotFoundException(categoryId));
+	}
+	
+	public Category update(Long categoryId, Category category) {
+		try {
+			checkDuplicateCategoryName(category);
+			Category entity = categoryRepository.getReferenceById(categoryId);
+			updateCategoryData(entity, category);
+			return categoryRepository.save(entity);
+		} catch(EntityNotFoundException e) {
+			throw new ResourceNotFoundException(categoryId);
+		}
+	}
+	
+	private void updateCategoryData(Category entity, Category category) {
+		entity.setName(category.getName());
+		entity.setDescription(category.getDescription());
+	}
+	
+	private void checkDuplicateCategoryName(Category category) {
+		boolean isCategoryExist = categoryRepository.findByName(category.getName())
+				.stream().anyMatch(existCategory -> !existCategory.equals(category));
+		
+		if(isCategoryExist) {
+			throw new BusinessException("Category name is already taken");
+		}
 	}
 }
