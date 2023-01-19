@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,5 +59,11 @@ public class CategoryController {
 	public ResponseEntity<Category> update(@PathVariable Long categoryId, @RequestBody CategoryRequest categoryRequest) {
 		Category category = categoryService.update(categoryId, categoryAssembler.toDto(categoryRequest));
 		return ResponseEntity.ok().body(category);
+	}
+	
+	@DeleteMapping("/{categoryId}")
+	public ResponseEntity<Void> delete(@PathVariable long categoryId) {
+		categoryService.delete(categoryId);
+		return ResponseEntity.noContent().build();
 	}
 }

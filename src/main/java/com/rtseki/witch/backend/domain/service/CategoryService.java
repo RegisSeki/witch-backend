@@ -1,12 +1,15 @@
 package com.rtseki.witch.backend.domain.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.rtseki.witch.backend.domain.exception.BusinessException;
+import com.rtseki.witch.backend.domain.exception.DatabaseException;
 import com.rtseki.witch.backend.domain.exception.ResourceNotFoundException;
 import com.rtseki.witch.backend.domain.model.Category;
 import com.rtseki.witch.backend.domain.repository.CategoryRepository;
@@ -43,6 +46,17 @@ public class CategoryService {
 			return categoryRepository.save(entity);
 		} catch(EntityNotFoundException e) {
 			throw new ResourceNotFoundException(categoryId);
+		}
+	}
+	
+	public void delete(Long categoryId) {
+		try {
+			categoryRepository.deleteById(categoryId);
+	
+		} catch (EmptyResultDataAccessException e) {
+			throw new ResourceNotFoundException(categoryId);
+		} catch (DataIntegrityViolationException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 	}
 	
