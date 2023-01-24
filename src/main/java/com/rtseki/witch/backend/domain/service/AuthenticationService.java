@@ -19,7 +19,7 @@ public class AuthenticationService {
 	private final UserService userService;
 	private final JwtService jwtService;
 	private final AuthenticationManager authenticationManager;
-	
+
 	public AuthenticationResponse register(User user) {
 
 		User createdUser = userService.save(user); 
