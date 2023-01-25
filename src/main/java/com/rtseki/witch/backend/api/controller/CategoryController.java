@@ -3,7 +3,6 @@ package com.rtseki.witch.backend.api.controller;
 import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.rtseki.witch.backend.api.assembler.CategoryAssembler;
 import com.rtseki.witch.backend.api.dto.request.CategoryRequest;
 import com.rtseki.witch.backend.api.dto.response.CategoryResponse;
+import com.rtseki.witch.backend.api.dto.response.CategoryResponseList;
 import com.rtseki.witch.backend.domain.model.Category;
 import com.rtseki.witch.backend.domain.service.CategoryService;
 
@@ -38,26 +38,26 @@ public class CategoryController {
 	
 	@PostMapping
 	public ResponseEntity<CategoryResponse> create(@RequestBody CategoryRequest categoryRequest) {
-		Category createdCategory = categoryService.create(categoryAssembler.toDto(categoryRequest));
+		Category createdCategory = categoryService.create(categoryAssembler.toRequest(categoryRequest));
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(createdCategory.getId()).toUri();
 		return ResponseEntity.created(uri).body(categoryAssembler.toResponse(createdCategory));		
 	}
+
+	@GetMapping("/{categoryId}")
+	public ResponseEntity<CategoryResponse> findById(@PathVariable Long categoryId) {
+		Category category = categoryService.findById(categoryId);
+		return ResponseEntity.ok().body(categoryAssembler.toResponse(category));
+	}
+			
+	@PutMapping("/{categoryId}")
+	public ResponseEntity<CategoryResponse> update(@PathVariable Long categoryId, @RequestBody CategoryRequest categoryRequest) {
+		Category category = categoryService.update(categoryId, categoryAssembler.toRequest(categoryRequest));
+		return ResponseEntity.ok().body(categoryAssembler.toResponse(category));
+	}
 	
 	@GetMapping
-	public Page<Category> findAll(@PageableDefault(size = 5, page = 0) Pageable pageable) {
-		return categoryService.findAll(pageable);
-	}
-	
-	@GetMapping("/{categoryId}")
-	public ResponseEntity<Category> findById(@PathVariable Long categoryId) {
-		Category category = categoryService.findById(categoryId);
-		return ResponseEntity.ok().body(category);
-	}
-	
-	@PutMapping("/{categoryId}")
-	public ResponseEntity<Category> update(@PathVariable Long categoryId, @RequestBody CategoryRequest categoryRequest) {
-		Category category = categoryService.update(categoryId, categoryAssembler.toDto(categoryRequest));
-		return ResponseEntity.ok().body(category);
+	public CategoryResponseList findAll(@PageableDefault(size = 5, page = 0) Pageable pageable) {
+		return categoryAssembler.toCategoryResponseList(categoryService.findAll(pageable));
 	}
 	
 	@DeleteMapping("/{categoryId}")
