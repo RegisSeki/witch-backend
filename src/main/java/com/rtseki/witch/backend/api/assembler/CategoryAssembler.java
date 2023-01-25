@@ -29,7 +29,6 @@ public class CategoryAssembler {
 	}
 	
 	public CategoryResponseList toCategoryResponseList(Page<Category> categories) {
-		
 		CategoryResponseList result = new CategoryResponseList();
 		List<CategoryResponse> categoryResponseList = new ArrayList<>();
 
@@ -37,7 +36,6 @@ public class CategoryAssembler {
 		result.setTotalElements(categories.getTotalElements());
 		result.setPageSize(categories.getSize());
 		result.setTotalPages(categories.getTotalPages());
-
 
 		for (Category category : categories) {
 			CategoryResponse categoryResponse = modelMapper.map(category, CategoryResponse.class);
