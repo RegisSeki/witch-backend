@@ -55,14 +55,14 @@ public class CategoryController {
 		return ResponseEntity.ok().body(categoryAssembler.toResponse(category));
 	}
 	
-	@GetMapping
-	public CategoryResponseList findAll(@PageableDefault(size = 5, page = 0) Pageable pageable) {
-		return categoryAssembler.toCategoryResponseList(categoryService.findAll(pageable));
-	}
-	
 	@DeleteMapping("/{categoryId}")
 	public ResponseEntity<Void> delete(@PathVariable long categoryId) {
 		categoryService.delete(categoryId);
 		return ResponseEntity.noContent().build();
+	}
+	
+	@GetMapping
+	public CategoryResponseList findAll(@PageableDefault(size = 5, page = 0) Pageable pageable) {
+		return categoryAssembler.toCategoryResponseList(categoryService.findAll(pageable));
 	}
 }
