@@ -6,9 +6,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CategoryRequest {
+public class SubcategoryRequest {
+	@NotNull
+	private Long category_id;
 	@NotNull
 	private String name;
-
 	private String description;
 }
