@@ -10,3 +10,7 @@ INSERT INTO _category(name, description) VALUES ('Candy','Things to fatten');
 INSERT INTO _category(name, description) VALUES ('Healthy','Doctor, exams');
 INSERT INTO _category(name, description) VALUES ('Drugstore','Medicine, drugs');
 INSERT INTO _category(name, description) VALUES ('Mobility','Uber');
+INSERT INTO _subcategory(name, description, category_id) VALUES ('Milk','Poor cows', (SELECT id FROM _category WHERE name = 'Foods'));
+INSERT INTO _subcategory(name, description, category_id) VALUES ('Bread','Delicious and caloric', (SELECT id FROM _category WHERE name = 'Foods'));
+INSERT INTO _subcategory(name, description, category_id) VALUES ('Food','Things to  cat eat', (SELECT id FROM _category WHERE name = 'Cat'));
+INSERT INTO _subcategory(name, description, category_id) VALUES ('Tidbit','For the cat joy', (SELECT id FROM _category WHERE name = 'Cat'));

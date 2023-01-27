@@ -45,11 +45,7 @@ public class CategoryServiceTest {
 	
 	@BeforeEach
 	void setup() {
-		category = Category.builder().
-				id(1L).
-				name("Food").
-				description("Things to eat").
-				build();
+		category = new Category(1L, "Food", "Things to eat");
 	}
 	
 	@Test
@@ -89,11 +85,7 @@ public class CategoryServiceTest {
 	@DisplayName("Find all categories")
 	void findAllCategories_whenFindAll_thenReturnCategoriesList() {
 		// Arrange
-		Category category1 = Category.builder().
-				id(2L).
-				name("Eletronic Games").
-				description("For fun moments").
-				build();
+		Category category1 = new Category(2L, "Eletronic Games", "For fun moments");
 
 		PageRequest pageable = PageRequest.of(1, 2);
 		

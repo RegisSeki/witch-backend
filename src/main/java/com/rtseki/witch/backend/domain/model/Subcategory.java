@@ -1,14 +1,10 @@
 package com.rtseki.witch.backend.domain.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
@@ -20,12 +16,12 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-@Table(name = "_category",
+@Table(name = "_subcategory",
 uniqueConstraints = {
 		@UniqueConstraint(columnNames = "name")
 })
-public class Category {
-
+public class Subcategory {
+	
 	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,23 +32,17 @@ public class Category {
 	
 	private String description;
 	
-	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-	private List<Subcategory> subcategories = new ArrayList<>();
+	@ManyToOne
+	private Category category;
 	
-	public Category() {
+	public Subcategory() {
 		
 	}
 	
-	public Category(Long id, String name, String description) {
+	public Subcategory(Long id, String name, String description, Category category) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
-	}
-	
-	public Category(Long id, String name, String description, List<Subcategory> subcategories) {
-		this.id = id;
-		this.name = name;
-		this.description = description;
-		this.subcategories = subcategories;
+		this.category = category;
 	}
 }
