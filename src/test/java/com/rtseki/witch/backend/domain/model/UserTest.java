@@ -1,5 +1,10 @@
 package com.rtseki.witch.backend.domain.model;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
@@ -38,12 +43,12 @@ public class UserTest {
 		User storedUser = testEntityManager.persistAndFlush(user);
 		
 		// Assert
-		Assertions.assertTrue(storedUser.getId() > 0);
-		Assertions.assertEquals(user.getUserId(), storedUser.getUserId());
-		Assertions.assertEquals(user.getFirstname(), storedUser.getFirstname());
-		Assertions.assertEquals(user.getLastname(), storedUser.getLastname());
-		Assertions.assertEquals(user.getEmail(), storedUser.getEmail());
-		Assertions.assertEquals(user.getPassword(), storedUser.getPassword());
+		assertTrue(storedUser.getId() > 0);
+		assertThat(storedUser).hasFieldOrPropertyWithValue("userId", user.getUserId());
+		assertThat(storedUser).hasFieldOrPropertyWithValue("firstname", user.getFirstname());
+		assertThat(storedUser).hasFieldOrPropertyWithValue("lastname", user.getLastname());
+		assertThat(storedUser).hasFieldOrPropertyWithValue("email", user.getEmail());
+		assertThat(storedUser).hasFieldOrPropertyWithValue("password", user.getPassword());
 	}
 	
 	@Test
@@ -52,7 +57,7 @@ public class UserTest {
 		user.setFirstname("ThisIsAExampleForANameThatIsBiggerThan50Characters_");
 		
 		// Act and Assert
-		Assertions.assertThrows(ConstraintViolationException.class, () ->{
+		assertThrows(ConstraintViolationException.class, () ->{
 			testEntityManager.persistAndFlush(user);
 		}, "Was expecting a ConstraintViolationException to be thrown." );
 	}
@@ -63,7 +68,7 @@ public class UserTest {
 		user.setFirstname("Ab");
 		
 		// Act and Assert
-		Assertions.assertThrows(ConstraintViolationException.class, () ->{
+		assertThrows(ConstraintViolationException.class, () ->{
 			testEntityManager.persistAndFlush(user);
 		}, "Was expecting a ConstraintViolationException to be thrown." );
 	}
@@ -74,7 +79,7 @@ public class UserTest {
 		user.setFirstname(null);
 		
 		// Act and Assert
-		Assertions.assertThrows(ConstraintViolationException.class, () ->{
+		assertThrows(ConstraintViolationException.class, () ->{
 			testEntityManager.persistAndFlush(user);
 		}, "Was expecting a ConstraintViolationException to be thrown." );
 	}
@@ -95,7 +100,7 @@ public class UserTest {
 		user.setUserId("1");
 		
 		// Act and Assert
-		Assertions.assertThrows(PersistenceException.class, () ->{
+		assertThrows(PersistenceException.class, () ->{
 			testEntityManager.persistAndFlush(user);
 		}, "Was expecting a PersistenceException to be thrown." );
 	}
@@ -116,7 +121,7 @@ public class UserTest {
 		user.setEmail("yuki@email.com");
 		
 		// Act and Assert
-		Assertions.assertThrows(PersistenceException.class, () ->{
+		assertThrows(PersistenceException.class, () ->{
 			testEntityManager.persistAndFlush(user);
 		}, "Was expecting a PersistenceException to be thrown." );
 	}
