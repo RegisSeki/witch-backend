@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -38,22 +39,32 @@ public class AuthenticationControllerTest {
     @Autowired
     private TestRestTemplate testRestTemplate;
     
+    private JSONObject userDetailsRequestJson;
+    private JSONObject loginCredentials;
+    private HttpHeaders headers;
+    
+    @BeforeEach
+    void setup() throws JSONException {
+    	userDetailsRequestJson = new JSONObject();
+        userDetailsRequestJson.put("firstname", "Yuki");
+        userDetailsRequestJson.put("lastname", "Seki");
+        userDetailsRequestJson.put("email", "yuki@mail.com");
+        userDetailsRequestJson.put("password","12345678");
+        
+    	loginCredentials = new JSONObject();
+        loginCredentials.put("email", "yuki@mail.com");
+        loginCredentials.put("password","12345678");
+    	
+    	headers = new HttpHeaders();
+    	headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+    }
+    
 	@Test
 	@DisplayName("Create User")
 	@Order(1)
 	void testCreateUser_whenValidParameters_returnToken() throws Exception {
 		// Arrange
-		
-		JSONObject userDetailsRequestJson = new JSONObject();
-        userDetailsRequestJson.put("firstname", "Yuki");
-        userDetailsRequestJson.put("lastname", "Seki");
-        userDetailsRequestJson.put("email", "yuki@mail.com");
-        userDetailsRequestJson.put("password","12345678");
-		
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-
         HttpEntity<String> request = new HttpEntity<>(userDetailsRequestJson.toString(), headers);
 		
 		// Act
@@ -75,17 +86,6 @@ public class AuthenticationControllerTest {
 	@Order(2)
 	void testCreateUser_whenInvalidParameters_return400() throws Exception {
 		// Arrange
-		
-		JSONObject userDetailsRequestJson = new JSONObject();
-        userDetailsRequestJson.put("firstname", "Yuki");
-        userDetailsRequestJson.put("lastname", "Seki");
-        userDetailsRequestJson.put("email", "yuki@mail.com");
-        userDetailsRequestJson.put("password","12345678");
-		
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-
         HttpEntity<String> request = new HttpEntity<>(userDetailsRequestJson.toString(), headers);
 		
 		// Act
@@ -102,16 +102,8 @@ public class AuthenticationControllerTest {
 	@Order(3)
 	void testCreateUser_whenFirstNameIsTooShort_return400() throws Exception {
 		// Arrange
-		
-		JSONObject userDetailsRequestJson = new JSONObject();
         userDetailsRequestJson.put("firstname", "Y");
-        userDetailsRequestJson.put("lastname", "Seki");
         userDetailsRequestJson.put("email", "newyuki@mail.com");
-        userDetailsRequestJson.put("password","12345678");
-		
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 
         HttpEntity<String> request = new HttpEntity<>(userDetailsRequestJson.toString(), headers);
 		
@@ -128,14 +120,6 @@ public class AuthenticationControllerTest {
 	@Order(4)
 	void testAuthenticateUser_whenCorrectParameters_returnToken() throws JSONException {
 		// Arrange
-        JSONObject loginCredentials = new JSONObject();
-        loginCredentials.put("email", "yuki@mail.com");
-        loginCredentials.put("password","12345678");
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-        
         HttpEntity<String> request = new HttpEntity<>(loginCredentials.toString(), headers);
 
         // Act
@@ -155,14 +139,8 @@ public class AuthenticationControllerTest {
 	@Order(5)
 	void testAuthenticateUser_whenIncorrectParameters_return403() throws JSONException {
 		// Arrange
-        JSONObject loginCredentials = new JSONObject();
         loginCredentials.put("email", "wrong@mail.com");
-        loginCredentials.put("password","12345678");
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-        
+      
         HttpEntity<String> request = new HttpEntity<>(loginCredentials.toString(), headers);
 
         // Act
