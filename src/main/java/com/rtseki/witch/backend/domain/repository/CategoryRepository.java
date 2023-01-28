@@ -11,7 +11,7 @@ import com.rtseki.witch.backend.domain.model.Category;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-
+	
 	Page<Category> findAll(Pageable pageable);
 	
 	Optional<Category> findByName(String name);

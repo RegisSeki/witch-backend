@@ -5,9 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SubcategoryResponse {
+public class CategoryShortResponse {
+
 	private Long id;
 	private String name;
-	private String description;
-	private CategoryShortResponse category;
 }
