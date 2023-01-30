@@ -41,7 +41,7 @@ public class ApiExceptionHandler {
 		
 		problem.setStatus(status.value());
 		problem.setDateHour(OffsetDateTime.now()); 
-		problem.setTitle("One or more fields are not correct! Fill the fields correclty and try again!");
+		problem.setTitle("One or more fields are not correct! Fill the fields correctly and try again!");
 		problem.setFields(fields);
 		
 		return new ResponseEntity<>(problem, status);

@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 public class CategoryRequest {
 
-	@NotBlank(message = "May not be blank")
+	@NotBlank
 	private String name;
 
 	private String description;

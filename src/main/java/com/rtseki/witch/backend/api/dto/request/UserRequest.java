@@ -9,15 +9,16 @@ import lombok.Setter;
 @Setter
 public class UserRequest {
 
-	@NotBlank(message = "May not be blank")
+	@NotBlank
 	private String firstname;
 	
-	@NotBlank(message = "May not be blank")
+	@NotBlank
 	private String lastname;
 	
 	@Email
+	@NotBlank
 	private String email;
 	
-	@NotBlank(message = "May not be blank")
+	@NotBlank
 	private String password;
 }

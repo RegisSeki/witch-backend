@@ -1,5 +1,7 @@
 package com.rtseki.witch.backend.api.controller;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 
 import org.json.JSONException;
@@ -68,13 +70,10 @@ public class AuthenticationControllerTest {
         HttpEntity<String> request = new HttpEntity<>(userDetailsRequestJson.toString(), headers);
 		
 		// Act
-
 	    ResponseEntity<AuthenticationResponse> response = testRestTemplate.postForEntity("/api/v1/auth/register",
 	    		request, AuthenticationResponse.class);
-
         
 		String createdUserToken = response.getBody().toString();        
-
 		// Assert
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
         Assertions.assertNotNull(createdUserToken);
@@ -89,17 +88,74 @@ public class AuthenticationControllerTest {
         HttpEntity<String> request = new HttpEntity<>(userDetailsRequestJson.toString(), headers);
 		
 		// Act
-
 	    ResponseEntity<String> response = testRestTemplate.postForEntity("/api/v1/auth/register",
-	    		request, null);
+	    		request, String.class);
 	
 		// Assert
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertTrue(response.getBody().toString().contains("\"title\":\"This email is already in use!\""));
 	}
 	
 	@Test
-	@DisplayName("Do not Create User with Firstname too short")
+	@DisplayName("Do not Create User, filed password name is not present")
 	@Order(3)
+	void testCreateUser_whenMissingPasswordParameter_return400() throws Exception {
+		// Arrange
+        userDetailsRequestJson.put("firstname", "Yuki");
+        userDetailsRequestJson.remove("email");
+
+        HttpEntity<String> request = new HttpEntity<>(userDetailsRequestJson.toString(), headers);
+		
+		// Act
+	    ResponseEntity<String> response = testRestTemplate.postForEntity("/api/v1/auth/register",
+	    		request, String.class);
+	
+		// Assert
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertTrue(response.getBody().toString().contains("\"name\":\"email\""));
+	}
+	
+	@Test
+	@DisplayName("Do not Create User, field first name is not present")
+	@Order(4)
+	void testCreateUser_whenMissingFirstnameParameter_return400() throws Exception {
+		// Arrange
+        userDetailsRequestJson.remove("firstname");
+        userDetailsRequestJson.put("email", "newyuki@mail.com");
+
+        HttpEntity<String> request = new HttpEntity<>(userDetailsRequestJson.toString(), headers);
+		
+		// Act
+	    ResponseEntity<String> response = testRestTemplate.postForEntity("/api/v1/auth/register",
+	    		request, String.class);
+	
+		// Assert
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertTrue(response.getBody().toString().contains("\"name\":\"firstname\""));
+	}
+	
+	@Test
+	@DisplayName("Do not Create User, parameter first name is blank")
+	@Order(5)
+	void testCreateUser_whenFirstnameBlank_return400() throws Exception {
+		// Arrange
+		userDetailsRequestJson.put("firstname", "");
+        userDetailsRequestJson.put("email", "newyuki@mail.com");
+
+        HttpEntity<String> request = new HttpEntity<>(userDetailsRequestJson.toString(), headers);
+		
+		// Act
+	    ResponseEntity<String> response = testRestTemplate.postForEntity("/api/v1/auth/register",
+	    		request, String.class);
+	
+		// Assert
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertTrue(response.getBody().toString().contains("\"name\":\"firstname\""));
+	}
+	
+	@Test
+	@DisplayName("Do not Create User when Firstname too short")
+	@Order(6)
 	void testCreateUser_whenFirstNameIsTooShort_return400() throws Exception {
 		// Arrange
         userDetailsRequestJson.put("firstname", "Y");
@@ -109,22 +165,26 @@ public class AuthenticationControllerTest {
 		
 		// Act
 	    ResponseEntity<String> response = testRestTemplate.postForEntity("/api/v1/auth/register",
-	    		request, null);
+	    		request, String.class);
 	
 		// Assert
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertTrue(response.getBody().toString().contains(
+        		"The parameters are not correct, check and try again!"));
 	}
 	
 	@Test
 	@DisplayName("Authenticate User")
-	@Order(4)
+	@Order(7)
 	void testAuthenticateUser_whenCorrectParameters_returnToken() throws JSONException {
 		// Arrange
         HttpEntity<String> request = new HttpEntity<>(loginCredentials.toString(), headers);
 
         // Act
-        ResponseEntity<AuthenticationResponse> response = testRestTemplate.postForEntity("/api/v1/auth/authenticate",
-                request, AuthenticationResponse.class);
+        ResponseEntity<AuthenticationResponse> response = testRestTemplate.postForEntity(
+        		"/api/v1/auth/authenticate",
+                request,
+                AuthenticationResponse.class);
         
 		String authenticatedUsertoken = response.getBody().toString();        
         
@@ -136,7 +196,7 @@ public class AuthenticationControllerTest {
 	
 	@Test
 	@DisplayName("Do not authenticate User")
-	@Order(5)
+	@Order(8)
 	void testAuthenticateUser_whenIncorrectParameters_return403() throws JSONException {
 		// Arrange
         loginCredentials.put("email", "wrong@mail.com");

@@ -11,7 +11,7 @@ import lombok.Setter;
 public class SubcategoryRequest {
 	private CategoryIdRequest category;
 	
-	@NotBlank(message = "May not be blank")
+	@NotBlank
 	private String name;
 	
 	private String description;
