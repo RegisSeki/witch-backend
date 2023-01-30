@@ -3,6 +3,8 @@ package com.rtseki.witch.backend.api.controller;
 import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.rtseki.witch.backend.api.assembler.SubcategoryAssembler;
 import com.rtseki.witch.backend.api.dto.request.SubcategoryRequest;
 import com.rtseki.witch.backend.api.dto.response.SubcategoryResponse;
+import com.rtseki.witch.backend.api.dto.response.SubcategoryResponseList;
 import com.rtseki.witch.backend.domain.model.Subcategory;
 import com.rtseki.witch.backend.domain.service.SubcategoryService;
 
@@ -63,5 +66,8 @@ public class SubcategoryController {
 		return ResponseEntity.noContent().build();
 	}
 	
-	
+	@GetMapping
+	public SubcategoryResponseList findAll(@PageableDefault(size = 5, page = 0) Pageable pageable) {
+		return assembler.toSubcategoryResponseList(service.findAll(pageable));
+	}
 }
