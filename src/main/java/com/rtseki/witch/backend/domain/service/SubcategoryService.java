@@ -22,7 +22,12 @@ public class SubcategoryService {
 	@Transactional
 	public Subcategory create(Subcategory subcategory) {
 		checkDuplicateSubcategoryName(subcategory);
-		Category category = categoryService.findById(subcategory.getCategory().getId());
+		Category category = null;
+		try {
+			category = categoryService.findById(subcategory.getCategory().getId());
+		} catch(Exception e)  {
+			throw new BusinessException(e.getMessage());
+		}
 		subcategory.setCategory(category);
 		return repository.save(subcategory);
 	}
