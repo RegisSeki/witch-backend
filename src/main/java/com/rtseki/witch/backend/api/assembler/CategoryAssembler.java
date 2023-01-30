@@ -20,7 +20,7 @@ public class CategoryAssembler {
 	
 	private ModelMapper modelMapper;
 
-	public Category toRequest(CategoryRequest request) {
+	public Category toModel(CategoryRequest request) {
 		return modelMapper.map(request, Category.class);
 	}
 	

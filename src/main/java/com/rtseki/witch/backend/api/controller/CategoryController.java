@@ -32,38 +32,38 @@ import lombok.RequiredArgsConstructor;
 public class CategoryController {
 
 	@Autowired
-	private final CategoryAssembler categoryAssembler;
+	private final CategoryAssembler assembler;
 	
 	@Autowired
-	private final CategoryService categoryService;
+	private final CategoryService service;
 	
 	@PostMapping
 	public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryRequest categoryRequest) {
-		Category createdCategory = categoryService.create(categoryAssembler.toRequest(categoryRequest));
+		Category createdCategory = service.create(assembler.toModel(categoryRequest));
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(createdCategory.getId()).toUri();
-		return ResponseEntity.created(uri).body(categoryAssembler.toResponse(createdCategory));		
+		return ResponseEntity.created(uri).body(assembler.toResponse(createdCategory));		
 	}
 
 	@GetMapping("/{categoryId}")
 	public ResponseEntity<CategoryResponse> findById(@PathVariable Long categoryId) {
-		Category category = categoryService.findById(categoryId);
-		return ResponseEntity.ok().body(categoryAssembler.toResponse(category));
+		Category category = service.findById(categoryId);
+		return ResponseEntity.ok().body(assembler.toResponse(category));
 	}
 			
 	@PutMapping("/{categoryId}")
 	public ResponseEntity<CategoryResponse> update(@PathVariable Long categoryId, @Valid @RequestBody CategoryRequest categoryRequest) {
-		Category category = categoryService.update(categoryId, categoryAssembler.toRequest(categoryRequest));
-		return ResponseEntity.ok().body(categoryAssembler.toResponse(category));
+		Category category = service.update(categoryId, assembler.toModel(categoryRequest));
+		return ResponseEntity.ok().body(assembler.toResponse(category));
 	}
 	
 	@DeleteMapping("/{categoryId}")
 	public ResponseEntity<Void> delete(@PathVariable long categoryId) {
-		categoryService.delete(categoryId);
+		service.delete(categoryId);
 		return ResponseEntity.noContent().build();
 	}
 	
 	@GetMapping
 	public CategoryResponseList findAll(@PageableDefault(size = 5, page = 0) Pageable pageable) {
-		return categoryAssembler.toCategoryResponseList(categoryService.findAll(pageable));
+		return assembler.toCategoryResponseList(service.findAll(pageable));
 	}
 }
