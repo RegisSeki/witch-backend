@@ -2,6 +2,7 @@ package com.rtseki.witch.backend.api.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -103,10 +104,52 @@ public class CategoryControllerTest {
 				"Returned category description seems to be incorrect");
 		assertFalse(createdCategory.getId() == null, "Category id should not be null");
 	}
+	
+	@Test
+	@DisplayName("Do not create Category when name parameter is missing")
+	@Order(2)
+	void testCreateCategory_whenMissingCategoryNameParameter_thenReturn400() throws JSONException {
+		// Arrange
+		JSONObject categoryDetailsRequestJson = new JSONObject();
+		categoryDetailsRequestJson.remove("name");
+		categoryDetailsRequestJson.put("description", "Things to eat");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(categoryDetailsRequestJson.toString(), headers);
+
+		// Act
+		ResponseEntity<String> response = testRestTemplate.postForEntity(
+				"/api/v1/categories", requestEntity, String.class);
+
+		// Assert
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+				"HTTP Status code should be 400");
+		assertTrue(response.getBody().toString().contains("\"name\":\"name\""));
+	}
+	
+	@Test
+	@DisplayName("Do not create Category when name parameter is empty")
+	@Order(3)
+	void testCreateCategory_whenEmptyCategoryNameParameter_thenReturn400() throws JSONException {
+		// Arrange
+		JSONObject categoryDetailsRequestJson = new JSONObject();
+		categoryDetailsRequestJson.put("name", "");
+		categoryDetailsRequestJson.put("description", "Things to eat");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(categoryDetailsRequestJson.toString(), headers);
+
+		// Act
+		ResponseEntity<String> response = testRestTemplate.postForEntity(
+				"/api/v1/categories", requestEntity, String.class);
+
+		// Assert
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+				"HTTP Status code should be 400");
+		assertTrue(response.getBody().toString().contains("\"name\":\"name\""));
+	}
 
 	@Test
 	@DisplayName("Do not create Category when name is already used")
-	@Order(2)
+	@Order(4)
 	void testCreateCategory_whenCategoryNameIsAlreadyUsed_thenReturn400() throws JSONException {
 		// Arrange
 		JSONObject categoryDetailsRequestJson = new JSONObject();
@@ -116,16 +159,19 @@ public class CategoryControllerTest {
 		HttpEntity<String> requestEntity = new HttpEntity<>(categoryDetailsRequestJson.toString(), headers);
 
 		// Act
-		ResponseEntity<String> response = testRestTemplate.postForEntity("/api/v1/categories", requestEntity, null);
+		ResponseEntity<String> response = testRestTemplate.postForEntity(
+				"/api/v1/categories", requestEntity, String.class);
 
 		// Assert
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
 				"HTTP Status code should be 400");
+        assertTrue(response.getBody().toString().contains(
+        		"Category name is already taken"));
 	}
 
 	@Test
 	@DisplayName("Find category by id")
-	@Order(3)
+	@Order(5)
 	void testFindCategoryById_whenGivenCorrectId_returnProperCategory() {
 		// Arrange
 		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
@@ -148,26 +194,27 @@ public class CategoryControllerTest {
 
 	@Test
 	@DisplayName("Do not find category by id")
-	@Order(4)
+	@Order(6)
 	void testFindCategoryById_whenGivenIncorrectId_return404() {
 		// Arrange
 		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
 
 		// Act
-		ResponseEntity<CategoryResponse> response = testRestTemplate.exchange("/api/v1/categories/10000",
-				HttpMethod.GET, 
+		ResponseEntity<String> response = testRestTemplate.exchange("/api/v1/categories/10000",
+				HttpMethod.GET,
 				requestEntity, 
-				new ParameterizedTypeReference<CategoryResponse>() {
-				});
+				String.class);
 
 		// Assert
 		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(),
 				"HTTP Status code should be 404");
+        assertTrue(response.getBody().toString().contains(
+        		"Resource not found. Id:"));
 	}
 
 	@Test
 	@DisplayName("Update category")
-	@Order(5)
+	@Order(7)
 	void testUpdateCategory_whenValidParams_thenReturnUpdatedCategory() throws JSONException {
 		// Arrange
 		JSONObject updateCategoryJson = new JSONObject();
@@ -196,7 +243,7 @@ public class CategoryControllerTest {
 	
 	@Test
 	@DisplayName("Do not update category")
-	@Order(6)
+	@Order(8)
 	void testUpdateCategory_whenCategoryNameIsAlreadyUsed_thenReturn400() throws JSONException {
 		// Arrange
 		JSONObject updateCategoryJson = new JSONObject();
@@ -205,19 +252,20 @@ public class CategoryControllerTest {
 		HttpEntity<String> requestEntity = new HttpEntity<>(updateCategoryJson.toString(), headers);
 
 		// Act
-		ResponseEntity<CategoryResponse> response = testRestTemplate.exchange(
+		ResponseEntity<String> response = testRestTemplate.exchange(
 				"/api/v1/categories/" + createdCategory.getId(), HttpMethod.PUT, requestEntity,
-				new ParameterizedTypeReference<CategoryResponse>() {
-				});
+				String.class);
 
 		// Assert
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
 				"HTTP Status code should be 400");
+        assertTrue(response.getBody().toString().contains(
+        		"Category name is already taken"));
 	}
 	
 	@Test
 	@DisplayName("Delete category")
-	@Order(7)
+	@Order(9)
 	void testDeleteCategory_whenProvidedCorrectId_thenReturn204() {
 		// Arrange 
 		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
@@ -237,19 +285,21 @@ public class CategoryControllerTest {
 	
 	@Test
 	@DisplayName("Do not delete category")
-	@Order(8)
+	@Order(10)
 	void testDeleteCategory_whenProvidedIncorrectId_thenReturn404() {
 		// Arrange 
 		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
 		
 		//Act
-		ResponseEntity<Void> response = testRestTemplate.exchange(
+		ResponseEntity<String> response = testRestTemplate.exchange(
 				"/api/v1/categories/" + createdCategory.getId(), HttpMethod.DELETE, requestEntity,
-				Void.class);
+				String.class);
 		
 		// Assert
 		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode()
 				,"HTTP Status code should be 404");
+        assertTrue(response.getBody().toString().contains(
+        		"Resource not found. Id:"));
 	}
 	
 	@Nested
@@ -272,7 +322,7 @@ public class CategoryControllerTest {
 		
 		@Test
 		@DisplayName("Find all categories with default pagination")
-		@Order(9)
+		@Order(11)
 		void testFindAllCategories_whenDefaultPagination_thenReturnProperCategories() {
 			// Arrange
 			HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
@@ -296,7 +346,7 @@ public class CategoryControllerTest {
 		
 		@Test
 		@DisplayName("Find all categories with custom size pagination")
-		@Order(10)
+		@Order(12)
 		void testFindAllCategories_whenCustomSizePaginationValue_thenReturnProperCategories() {
 			// Arrange
 			int customSize = 10;
@@ -323,7 +373,7 @@ public class CategoryControllerTest {
 		
 		@Test
 		@DisplayName("Find all categories with custom page pagination")
-		@Order(11)
+		@Order(13)
 		void testFindAllCategories_whenCustomPagePaginationValue_thenReturnProperCategories() {
 			// Arrange
 			int customPage = 1;
