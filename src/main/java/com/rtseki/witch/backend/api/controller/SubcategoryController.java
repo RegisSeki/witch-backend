@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,4 +56,12 @@ public class SubcategoryController {
 		Subcategory subcategory = service.update(subcategoryId, assembler.toModel(request));
 		return ResponseEntity.ok().body(assembler.toResponse(subcategory));
 	}
+	
+	@DeleteMapping("/{subcategoryId}")
+	public ResponseEntity<Void> delete(@PathVariable Long subcategoryId) {
+		service.delete(subcategoryId);
+		return ResponseEntity.noContent().build();
+	}
+	
+	
 }
