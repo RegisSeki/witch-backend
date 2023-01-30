@@ -4,6 +4,8 @@ import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +18,7 @@ import com.rtseki.witch.backend.api.dto.response.SubcategoryResponse;
 import com.rtseki.witch.backend.domain.model.Subcategory;
 import com.rtseki.witch.backend.domain.service.SubcategoryService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -29,7 +32,7 @@ public class SubcategoryController {
 	private final SubcategoryService service;
 	
 	@PostMapping
-	public ResponseEntity<SubcategoryResponse> create(@RequestBody SubcategoryRequest request) {
+	public ResponseEntity<SubcategoryResponse> create(@Valid @RequestBody SubcategoryRequest request) {
 		Subcategory createdSubcategory = service.create(assembler.toRequest(request));
 		URI uri = ServletUriComponentsBuilder.
 				fromCurrentRequest().
@@ -37,5 +40,11 @@ public class SubcategoryController {
 				buildAndExpand(createdSubcategory.getId()).
 				toUri();
 		return ResponseEntity.created(uri).body(assembler.toResponse(createdSubcategory));	
+	}
+	
+	@GetMapping("/{subcategoryId}")
+	public ResponseEntity<SubcategoryResponse> findById(@PathVariable Long subcategoryId) {
+		Subcategory subcategory = service.findById(subcategoryId);
+		return ResponseEntity.ok().body(assembler.toResponse(subcategory));
 	}
 }

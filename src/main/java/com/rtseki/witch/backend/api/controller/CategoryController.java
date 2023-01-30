@@ -23,6 +23,7 @@ import com.rtseki.witch.backend.api.dto.response.CategoryResponseList;
 import com.rtseki.witch.backend.domain.model.Category;
 import com.rtseki.witch.backend.domain.service.CategoryService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -37,7 +38,7 @@ public class CategoryController {
 	private final CategoryService categoryService;
 	
 	@PostMapping
-	public ResponseEntity<CategoryResponse> create(@RequestBody CategoryRequest categoryRequest) {
+	public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryRequest categoryRequest) {
 		Category createdCategory = categoryService.create(categoryAssembler.toRequest(categoryRequest));
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(createdCategory.getId()).toUri();
 		return ResponseEntity.created(uri).body(categoryAssembler.toResponse(createdCategory));		
@@ -50,7 +51,7 @@ public class CategoryController {
 	}
 			
 	@PutMapping("/{categoryId}")
-	public ResponseEntity<CategoryResponse> update(@PathVariable Long categoryId, @RequestBody CategoryRequest categoryRequest) {
+	public ResponseEntity<CategoryResponse> update(@PathVariable Long categoryId, @Valid @RequestBody CategoryRequest categoryRequest) {
 		Category category = categoryService.update(categoryId, categoryAssembler.toRequest(categoryRequest));
 		return ResponseEntity.ok().body(categoryAssembler.toResponse(category));
 	}

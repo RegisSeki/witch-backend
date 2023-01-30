@@ -15,6 +15,7 @@ import com.rtseki.witch.backend.api.dto.response.AuthenticationResponse;
 import com.rtseki.witch.backend.domain.model.User;
 import com.rtseki.witch.backend.domain.service.AuthenticationService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -27,13 +28,13 @@ public class AuthenticationController {
 	
 	@PostMapping("/register")
 	@ResponseStatus(HttpStatus.CREATED)
-	public AuthenticationResponse register(@RequestBody UserRequest request) {
+	public AuthenticationResponse register(@Valid @RequestBody UserRequest request) {
 		User newUser = userAssembler.toDto(request);
 		return authenticationService.register(newUser);
 	}
 	
 	@PostMapping("/authenticate")
-	public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+	public ResponseEntity<AuthenticationResponse> authenticate(@Valid @RequestBody AuthenticationRequest request) {
 		return ResponseEntity.ok(authenticationService.authenticate(request));
 	}
 }

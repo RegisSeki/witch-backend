@@ -9,6 +9,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,6 +34,7 @@ public class Subcategory {
 	
 	private String description;
 	
+	@NotBlank
 	@ManyToOne
 	@JoinColumn(name = "category_id")
 	private Category category;
