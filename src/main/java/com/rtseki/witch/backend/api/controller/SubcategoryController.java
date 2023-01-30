@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,7 +34,7 @@ public class SubcategoryController {
 	
 	@PostMapping
 	public ResponseEntity<SubcategoryResponse> create(@Valid @RequestBody SubcategoryRequest request) {
-		Subcategory createdSubcategory = service.create(assembler.toRequest(request));
+		Subcategory createdSubcategory = service.create(assembler.toModel(request));
 		URI uri = ServletUriComponentsBuilder.
 				fromCurrentRequest().
 				path("/{id}").
@@ -45,6 +46,13 @@ public class SubcategoryController {
 	@GetMapping("/{subcategoryId}")
 	public ResponseEntity<SubcategoryResponse> findById(@PathVariable Long subcategoryId) {
 		Subcategory subcategory = service.findById(subcategoryId);
+		return ResponseEntity.ok().body(assembler.toResponse(subcategory));
+	}
+	
+	@PutMapping("/{subcategoryId}")
+	public ResponseEntity<SubcategoryResponse> update(@PathVariable Long subcategoryId,
+			@Valid @RequestBody SubcategoryRequest request) {
+		Subcategory subcategory = service.update(subcategoryId, assembler.toModel(request));
 		return ResponseEntity.ok().body(assembler.toResponse(subcategory));
 	}
 }

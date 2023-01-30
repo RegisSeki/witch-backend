@@ -15,7 +15,7 @@ public class SubcategoryAssembler {
 
 	private ModelMapper modelMapper;	
 	
-	public Subcategory toRequest(SubcategoryRequest request) {
+	public Subcategory toModel(SubcategoryRequest request) {
 		return modelMapper.map(request, Subcategory.class);
 	}
 	

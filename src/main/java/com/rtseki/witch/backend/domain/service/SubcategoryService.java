@@ -10,6 +10,8 @@ import com.rtseki.witch.backend.domain.model.Category;
 import com.rtseki.witch.backend.domain.model.Subcategory;
 import com.rtseki.witch.backend.domain.repository.SubcategoryRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class SubcategoryService {
 	
@@ -22,19 +24,25 @@ public class SubcategoryService {
 	@Transactional
 	public Subcategory create(Subcategory subcategory) {
 		checkDuplicateSubcategoryName(subcategory);
-		Category category = null;
-		try {
-			category = categoryService.findById(subcategory.getCategory().getId());
-		} catch(Exception e)  {
-			throw new BusinessException(e.getMessage());
-		}
-		subcategory.setCategory(category);
+		loadCategoryData(subcategory);
 		return repository.save(subcategory);
 	}
 	
 	public Subcategory findById(Long subcategoryId) {
 		return repository.findById(subcategoryId)
 			.orElseThrow(() -> new ResourceNotFoundException(subcategoryId));
+	}
+	
+	public Subcategory update(Long subcategoryId, Subcategory subcategory) {
+		checkDuplicateSubcategoryName(subcategory);
+		try {
+			Subcategory entity = repository.getReferenceById(subcategoryId);
+			updateSubcategoryData(entity, subcategory);
+			loadCategoryData(entity);
+			return repository.save(entity);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(subcategoryId);
+		}
 	}
 	
 	private void checkDuplicateSubcategoryName(Subcategory subcategory) {
@@ -44,5 +52,21 @@ public class SubcategoryService {
 		if(isSubcategoryExist) {
 			throw new BusinessException("Subcategory name is already taken");
 		}
+	}
+	
+	private void updateSubcategoryData(Subcategory entity, Subcategory subcategory) {
+		entity.setCategory(subcategory.getCategory());
+		entity.setName(subcategory.getName());
+		entity.setDescription(subcategory.getDescription());
+	}
+	
+	private void loadCategoryData(Subcategory subcategory) {
+		Category category = null;
+		try {
+			category = categoryService.findById(subcategory.getCategory().getId());
+		} catch(Exception e)  {
+			throw new BusinessException(e.getMessage());
+		}
+		subcategory.setCategory(category);
 	}
 }
