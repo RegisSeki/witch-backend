@@ -48,13 +48,13 @@ public class AuthenticationControllerTest {
     @BeforeEach
     void setup() throws JSONException {
     	userDetailsRequestJson = new JSONObject();
-        userDetailsRequestJson.put("firstname", "Yuki");
+        userDetailsRequestJson.put("firstname", "Luana");
         userDetailsRequestJson.put("lastname", "Seki");
-        userDetailsRequestJson.put("email", "yuki@mail.com");
+        userDetailsRequestJson.put("email", "luana@mail.com");
         userDetailsRequestJson.put("password","12345678");
         
     	loginCredentials = new JSONObject();
-        loginCredentials.put("email", "yuki@mail.com");
+        loginCredentials.put("email", "luana@mail.com");
         loginCredentials.put("password","12345678");
     	
     	headers = new HttpHeaders();
@@ -101,7 +101,7 @@ public class AuthenticationControllerTest {
 	@Order(3)
 	void testCreateUser_whenMissingPasswordParameter_return400() throws Exception {
 		// Arrange
-        userDetailsRequestJson.put("firstname", "Yuki");
+        userDetailsRequestJson.put("firstname", "Luana");
         userDetailsRequestJson.remove("email");
 
         HttpEntity<String> request = new HttpEntity<>(userDetailsRequestJson.toString(), headers);
@@ -121,7 +121,7 @@ public class AuthenticationControllerTest {
 	void testCreateUser_whenMissingFirstnameParameter_return400() throws Exception {
 		// Arrange
         userDetailsRequestJson.remove("firstname");
-        userDetailsRequestJson.put("email", "newyuki@mail.com");
+        userDetailsRequestJson.put("email", "newluana@mail.com");
 
         HttpEntity<String> request = new HttpEntity<>(userDetailsRequestJson.toString(), headers);
 		
@@ -158,8 +158,8 @@ public class AuthenticationControllerTest {
 	@Order(6)
 	void testCreateUser_whenFirstNameIsTooShort_return400() throws Exception {
 		// Arrange
-        userDetailsRequestJson.put("firstname", "Y");
-        userDetailsRequestJson.put("email", "newyuki@mail.com");
+        userDetailsRequestJson.put("firstname", "L");
+        userDetailsRequestJson.put("email", "newluana@mail.com");
 
         HttpEntity<String> request = new HttpEntity<>(userDetailsRequestJson.toString(), headers);
 		
