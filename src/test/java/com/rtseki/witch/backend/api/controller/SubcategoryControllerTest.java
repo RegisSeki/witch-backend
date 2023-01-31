@@ -5,12 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -30,7 +32,9 @@ import org.springframework.http.ResponseEntity;
 
 import com.rtseki.witch.backend.api.dto.response.AuthenticationResponse;
 import com.rtseki.witch.backend.api.dto.response.SubcategoryResponse;
+import com.rtseki.witch.backend.api.dto.response.SubcategoryResponseList;
 import com.rtseki.witch.backend.domain.model.Category;
+import com.rtseki.witch.backend.domain.model.Subcategory;
 import com.rtseki.witch.backend.domain.model.User;
 import com.rtseki.witch.backend.domain.repository.CategoryRepository;
 import com.rtseki.witch.backend.domain.repository.SubcategoryRepository;
@@ -60,6 +64,7 @@ public class SubcategoryControllerTest {
 	
 	private HttpHeaders headers;
 	private SubcategoryResponse createdSubcategory;
+	private Category createdCategory;
 
 	@BeforeAll
 	void init() throws JSONException {
@@ -76,13 +81,7 @@ public class SubcategoryControllerTest {
 		headers.setBearerAuth(authenticationResponse.getToken());
 		
 		Category category = new Category(1L, "Food", "Things to eat");
-		categoryRepository.save(category);
-		
-
-
-//		System.out.println("######################################################");
-//		System.out.println(response);
-//		System.out.println("######################################################");
+		createdCategory = categoryRepository.save(category);
 	}
 	
 	@Test
@@ -162,7 +161,7 @@ public class SubcategoryControllerTest {
 	}
 	
 	@Test
-	@DisplayName("Do not create Subcategory when name parameter is missing")
+	@DisplayName("Do not create Subcategory when name parameter is blank")
 	@Order(4)
 	void testCreateSubcategory_whenNameParameterIsBlank_thenReturn400() throws JSONException {
 		// Arrange
@@ -285,5 +284,190 @@ public class SubcategoryControllerTest {
 				"Returned subcategory description seems to be incorrect");
 		assertEquals(categoryDetailsRequestJson.getString("id"), updatedSubcategory.getCategory().getId().toString(),
 				"Returned category id seems to be incorrect");
+	}
+	
+	@Test
+	@DisplayName("Do not update Subcategory when name is repeated")
+	@Order(9)
+	void testUpdateSubcategory_whenNameIsAlreadyUsed_thenReturn400() throws JSONException {
+		// Arrange
+		JSONObject categoryDetailsRequestJson = new JSONObject();
+		categoryDetailsRequestJson.put("id", "1");
+		JSONObject subcategoryDetailsRequestJson = new JSONObject();
+		subcategoryDetailsRequestJson.put("category", categoryDetailsRequestJson);
+		subcategoryDetailsRequestJson.put("name", "Meat");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(
+				subcategoryDetailsRequestJson.toString(), headers);
+
+		// Act
+		ResponseEntity<String> response = restTemplate.exchange(
+				"/api/v1/subcategories/" + createdSubcategory.getId(), HttpMethod.PUT, requestEntity,
+				String.class);
+		
+		// Assert
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+				"HTTP Status code should be 400");
+        assertTrue(response.getBody().toString().contains(
+        		"Subcategory name is already taken"));
+	}
+	
+	@Test
+	@DisplayName("Do not update Subcategory when category param is missing")
+	@Order(10)
+	void testUpdateSubcategory_whenCategoryIsMissing_thenReturn400() throws JSONException {
+		// Arrange
+		JSONObject subcategoryDetailsRequestJson = new JSONObject();
+		subcategoryDetailsRequestJson.put("name", "Dry Grains");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(
+				subcategoryDetailsRequestJson.toString(), headers);
+
+		// Act
+		ResponseEntity<String> response = restTemplate.exchange(
+				"/api/v1/subcategories/" + createdSubcategory.getId(), HttpMethod.PUT, requestEntity,
+				String.class);
+		
+		// Assert
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+				"HTTP Status code should be 400");
+		assertTrue(response.getBody().toString().contains("\"name\":\"category\""));
+	}
+	
+	@Test
+	@DisplayName("Do not update Subcategory when name is missing")
+	@Order(11)
+	void testUpdateSubcategory_whenNameIsMissing_thenReturn400() throws JSONException {
+		// Arrange
+		JSONObject categoryDetailsRequestJson = new JSONObject();
+		categoryDetailsRequestJson.put("id", "1");
+		JSONObject subcategoryDetailsRequestJson = new JSONObject();
+		subcategoryDetailsRequestJson.put("category", categoryDetailsRequestJson);
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(
+				subcategoryDetailsRequestJson.toString(), headers);
+
+		// Act
+		ResponseEntity<String> response = restTemplate.exchange(
+				"/api/v1/subcategories/" + createdSubcategory.getId(), HttpMethod.PUT, requestEntity,
+				String.class);
+		
+		// Assert
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+				"HTTP Status code should be 400");
+		assertTrue(response.getBody().toString().contains("\"name\":\"name\""));
+	}
+	
+	@Test
+	@DisplayName("Do not update Subcategory when name is blank")
+	@Order(12)
+	void testUpdateSubcategory_whenNameIsBlank_thenReturn400() throws JSONException {
+		// Arrange
+		JSONObject categoryDetailsRequestJson = new JSONObject();
+		categoryDetailsRequestJson.put("id", "1");
+		JSONObject subcategoryDetailsRequestJson = new JSONObject();
+		subcategoryDetailsRequestJson.put("category", categoryDetailsRequestJson);
+		subcategoryDetailsRequestJson.put("name", " ");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(
+				subcategoryDetailsRequestJson.toString(), headers);
+
+		// Act
+		ResponseEntity<String> response = restTemplate.exchange(
+				"/api/v1/subcategories/" + createdSubcategory.getId(), HttpMethod.PUT, requestEntity,
+				String.class);
+		
+		// Assert
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+				"HTTP Status code should be 400");
+		assertTrue(response.getBody().toString().contains("\"name\":\"name\""));
+	}
+	
+	@Test
+	@DisplayName("Delete Subcategory")
+	@Order(13)
+	void testDeleteSubcategory_whenProvidedCorrectId_thenReturn204() {
+		// Arrange 
+		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+		
+		//Act
+		ResponseEntity<Void> response = restTemplate.exchange(
+				"/api/v1/subcategories/" + createdSubcategory.getId(), HttpMethod.DELETE, requestEntity,
+				Void.class);
+		List<Subcategory> subcategories = repository.findAll();		
+		
+		// Assert
+		assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(),
+				"HTTP Status code should be 204");
+		assertEquals(subcategories.size(), 0,
+				"It should not have any category");
+	}
+	
+	@Test
+	@DisplayName("Do not delete category")
+	@Order(14)
+	void testDeleteSubcategory_whenProvidedInexistentId_thenReturn404() {
+		// Arrange 
+		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+		
+		//Act
+		ResponseEntity<String> response = restTemplate.exchange(
+				"/api/v1/subcategories/" + createdSubcategory.getId(), HttpMethod.DELETE, requestEntity,
+				String.class);
+		
+		// Assert
+		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode()
+				,"HTTP Status code should be 404");
+        assertTrue(response.getBody().toString().contains(
+        		"Resource not found. Id:"));
+	}
+	
+	@Nested
+	@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+	@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+	class SubcategoryControllerTestSubcategoryList{
+		
+		private final int totalSubcategories = 20;
+		private final int defaultPageSize = 5;
+		
+		@BeforeAll
+		void init() {
+			for(int i = 0; i < totalSubcategories; i ++) {
+				Subcategory subcategory = new Subcategory();
+				Category category = new Category();
+				category.setId(createdCategory.getId());
+				subcategory.setCategory(category);
+				subcategory.setName("Subcategory" + i);
+				subcategory.setDescription("Subcategory description" + i);
+				repository.save(subcategory);
+			}
+		}
+		
+		@Test
+		@DisplayName("Find all subcategories with default pagination")
+		@Order(15)
+		void testFindAllSubcategories_whenDefaultPagination_thenReturnProperSubcategories() {
+			// Arrange
+			HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+
+			// Act
+			ResponseEntity<SubcategoryResponseList> response = restTemplate.exchange(
+					"/api/v1/subcategories", HttpMethod.GET, requestEntity,
+					new ParameterizedTypeReference<SubcategoryResponseList>() {
+					});
+			SubcategoryResponseList subcategoryResponseList = response.getBody();
+			
+			//Assert
+			assertEquals(totalSubcategories, subcategoryResponseList.getTotalElements(),
+					"It should be the same number of elements");
+			assertEquals(defaultPageSize, subcategoryResponseList.getPageSize(),
+					"The number of the items that should be showed");
+			assertEquals((totalSubcategories / defaultPageSize), subcategoryResponseList.getTotalPages());
+			assertEquals(defaultPageSize, subcategoryResponseList.getSubcategories().size(),
+					"The number of the items that should be showed");
+			assertEquals(subcategoryResponseList.getSubcategories().get(0).getCategory().getId(),
+					createdCategory.getId(),
+					"The category id should be the same");
+		}
 	}
 }
