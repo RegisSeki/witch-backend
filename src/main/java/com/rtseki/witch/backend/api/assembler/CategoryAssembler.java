@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import com.rtseki.witch.backend.api.dto.request.CategoryRequest;
 import com.rtseki.witch.backend.api.dto.response.CategoryResponse;
 import com.rtseki.witch.backend.api.dto.response.CategoryResponseList;
+import com.rtseki.witch.backend.api.dto.response.CategorySubcategoriesResponse;
 import com.rtseki.witch.backend.domain.model.Category;
 
 import lombok.AllArgsConstructor;
@@ -26,6 +27,10 @@ public class CategoryAssembler {
 	
 	public CategoryResponse toResponse(Category category) {
 		return modelMapper.map(category, CategoryResponse.class);
+	}
+	
+	public CategorySubcategoriesResponse toSubcategoriesResponse(Category category) {
+		return modelMapper.map(category, CategorySubcategoriesResponse.class);
 	}
 	
 	public CategoryResponseList toCategoryResponseList(Page<Category> categories) {

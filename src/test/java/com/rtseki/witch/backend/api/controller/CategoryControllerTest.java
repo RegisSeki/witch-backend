@@ -33,9 +33,12 @@ import org.springframework.http.ResponseEntity;
 import com.rtseki.witch.backend.api.dto.response.AuthenticationResponse;
 import com.rtseki.witch.backend.api.dto.response.CategoryResponse;
 import com.rtseki.witch.backend.api.dto.response.CategoryResponseList;
+import com.rtseki.witch.backend.api.dto.response.CategorySubcategoriesResponse;
 import com.rtseki.witch.backend.domain.model.Category;
+import com.rtseki.witch.backend.domain.model.Subcategory;
 import com.rtseki.witch.backend.domain.model.User;
 import com.rtseki.witch.backend.domain.repository.CategoryRepository;
+import com.rtseki.witch.backend.domain.repository.SubcategoryRepository;
 import com.rtseki.witch.backend.domain.service.AuthenticationService;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -399,4 +402,97 @@ public class CategoryControllerTest {
 		}
 	}
 	
+	@Nested
+	@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+	@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+	class CategoryControllerTestSubcategoriesAssociated{
+		
+		@Autowired
+		private SubcategoryRepository subcategoryRepository;
+		
+		Category category;
+		int totalSubcategoriesAssociated = 3;
+		Category categoryToDeleteTest;
+		Subcategory subcategoryToDeleteTest;
+		
+		@BeforeAll
+		void init() {
+			category = new Category(null, "Category", "Category description");
+			category = categoryRepository.save(category);
+			
+			for(int i = 0; i < totalSubcategoriesAssociated; i ++) {
+				Subcategory subcategory = new Subcategory();
+				subcategory.setCategory(category);
+				subcategory.setName("Subcategory" + i);
+				subcategory.setDescription("Subcategory description" + i);
+				subcategoryRepository.save(subcategory);
+			}
+			
+			categoryToDeleteTest = new Category(null, "categoryToDeleteTest", null);
+			categoryToDeleteTest = categoryRepository.save(categoryToDeleteTest);
+			
+			subcategoryToDeleteTest = new Subcategory(null, "SubcategoryToDeleteTest", 
+					null, categoryToDeleteTest);
+			subcategoryToDeleteTest = subcategoryRepository.save(subcategoryToDeleteTest);
+		}
+		
+		@Test
+		@DisplayName("Find category by id with all subcategories associated")
+		@Order(14)
+		void testFindCategoryById_whenNeedSubcategories_thenReturnCategoryAndSubcategoriesList() {
+			// Arrange
+			HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+
+			// Act
+			ResponseEntity<CategorySubcategoriesResponse> response = testRestTemplate.exchange(
+					"/api/v1/categories/" + category.getId() + "/subcategories",
+					HttpMethod.GET, requestEntity,
+					new ParameterizedTypeReference<CategorySubcategoriesResponse>() {
+					});
+			CategorySubcategoriesResponse categorySubcategoriesList = response.getBody();
+			
+			//Assert
+			assertEquals(categorySubcategoriesList.getSubcategories().size(), totalSubcategoriesAssociated,
+					"It should be the same number totalSubcategoriesAssociated");
+			assertEquals(categorySubcategoriesList.getId(), category.getId(),
+					"It should be the same Category Id");
+		}
+		
+		@Test
+		@DisplayName("Do not delete Category with Associated Subcategory")
+		@Order(15)
+		void testDeleteCategory_whenSubcategoryAssociated_thenReturn404() {
+			// Arrange 
+			HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+			
+			//Act
+			ResponseEntity<String> response = testRestTemplate.exchange(
+					"/api/v1/categories/" + categoryToDeleteTest.getId(), HttpMethod.DELETE, requestEntity,
+					String.class);
+			
+			// Assert
+			assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode(),
+					"HTTP Status code should be 404");
+	        assertTrue(response.getBody().toString().contains(
+	        		"Association data is present, delete associated subcategories first"));
+		}
+		
+		@Test
+		@DisplayName("Delete Category when do not have associated Subcategory")
+		@Order(16)
+		void testDeleteCategory_whenNoSubcategoryAssociated_thenReturn204() {
+			// Arrange 
+			subcategoryRepository.delete(subcategoryToDeleteTest);
+			HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+			
+			//Act
+			ResponseEntity<String> response = testRestTemplate.exchange(
+					"/api/v1/categories/" + categoryToDeleteTest.getId(), HttpMethod.DELETE, requestEntity,
+					String.class);
+			
+			// Assert
+			assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(),
+					"HTTP Status code should be 204");
+		}
+	}
 }

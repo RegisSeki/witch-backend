@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
 import com.rtseki.witch.backend.domain.exception.BusinessException;
+import com.rtseki.witch.backend.domain.exception.DatabaseException;
 import com.rtseki.witch.backend.domain.exception.ResourceNotFoundException;
 
 //@AllArgsConstructor
@@ -62,6 +63,18 @@ public class ApiExceptionHandler {
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ResponseEntity<Object> handleResourceNotFound(ResourceNotFoundException ex, WebRequest request) {
 		HttpStatus status = HttpStatus.NOT_FOUND;
+		
+		Problem problem = new Problem();
+		problem.setStatus(status.value()); 
+		problem.setDateHour(OffsetDateTime.now()); 
+		problem.setTitle(ex.getMessage());
+
+		return new ResponseEntity<>(problem, status);
+	}
+	
+	@ExceptionHandler(DatabaseException.class)
+	public ResponseEntity<Object> handleDataIntegrity(DatabaseException ex, WebRequest request) {
+		HttpStatus status = HttpStatus.FORBIDDEN;
 		
 		Problem problem = new Problem();
 		problem.setStatus(status.value()); 

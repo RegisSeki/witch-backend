@@ -20,6 +20,7 @@ import com.rtseki.witch.backend.api.assembler.CategoryAssembler;
 import com.rtseki.witch.backend.api.dto.request.CategoryRequest;
 import com.rtseki.witch.backend.api.dto.response.CategoryResponse;
 import com.rtseki.witch.backend.api.dto.response.CategoryResponseList;
+import com.rtseki.witch.backend.api.dto.response.CategorySubcategoriesResponse;
 import com.rtseki.witch.backend.domain.model.Category;
 import com.rtseki.witch.backend.domain.service.CategoryService;
 
@@ -65,5 +66,11 @@ public class CategoryController {
 	@GetMapping
 	public CategoryResponseList findAll(@PageableDefault(size = 5, page = 0) Pageable pageable) {
 		return assembler.toCategoryResponseList(service.findAll(pageable));
+	}
+	
+	@GetMapping("/{categoryId}/subcategories")
+	public ResponseEntity<CategorySubcategoriesResponse> findSubcategories(@PathVariable Long categoryId) {
+		Category category = service.findById(categoryId);
+		return ResponseEntity.ok().body(assembler.toSubcategoriesResponse(category));
 	}
 }

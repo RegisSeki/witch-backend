@@ -56,7 +56,7 @@ public class CategoryService {
 		} catch (EmptyResultDataAccessException e) {
 			throw new ResourceNotFoundException(categoryId);
 		} catch (DataIntegrityViolationException e) {
-			throw new DatabaseException(e.getMessage());
+			throw new DatabaseException("Association data is present, delete associated subcategories first");
 		}
 	}
 	
