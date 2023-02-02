@@ -24,12 +24,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import com.rtseki.witch.backend.api.dto.response.AuthenticationResponse;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class AuthenticationControllerTest {
 
     @Value("${server.port}")
@@ -140,7 +143,7 @@ public class AuthenticationControllerTest {
 	void testCreateUser_whenFirstnameBlank_return400() throws Exception {
 		// Arrange
 		userDetailsRequestJson.put("firstname", "");
-        userDetailsRequestJson.put("email", "newyuki@mail.com");
+        userDetailsRequestJson.put("email", "newluana@mail.com");
 
         HttpEntity<String> request = new HttpEntity<>(userDetailsRequestJson.toString(), headers);
 		

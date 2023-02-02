@@ -29,6 +29,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import com.rtseki.witch.backend.api.dto.response.AuthenticationResponse;
 import com.rtseki.witch.backend.api.dto.response.SubcategoryResponse;
@@ -43,6 +45,7 @@ import com.rtseki.witch.backend.domain.service.AuthenticationService;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class SubcategoryControllerTest {
 	@Value("${server.port}")
 	private int serverPort;
@@ -70,7 +73,7 @@ public class SubcategoryControllerTest {
 	void init() throws JSONException {
 		User user = new User();
 		user.setFirstname("Yuki");
-		user.setLastname("Yuki");
+		user.setLastname("Seki");
 		user.setEmail("yuki@mail.com");
 		user.setPassword("12345678");
 		AuthenticationResponse authenticationResponse = authService.register(user);
@@ -425,6 +428,7 @@ public class SubcategoryControllerTest {
 	@Nested
 	@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 	@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+	@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 	class SubcategoryControllerTestSubcategoryList{
 		
 		private final int totalSubcategories = 20;
