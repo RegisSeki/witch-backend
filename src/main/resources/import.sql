@@ -14,3 +14,7 @@ INSERT INTO _subcategory(name, description, category_id) VALUES ('Milk','Poor co
 INSERT INTO _subcategory(name, description, category_id) VALUES ('Bread','Delicious and caloric', (SELECT id FROM _category WHERE name = 'Foods'));
 INSERT INTO _subcategory(name, description, category_id) VALUES ('Food','Things to  cat eat', (SELECT id FROM _category WHERE name = 'Cat'));
 INSERT INTO _subcategory(name, description, category_id) VALUES ('Tidbit','For the cat joy', (SELECT id FROM _category WHERE name = 'Cat'));
+INSERT INTO _product(name, barcode, description, subcategory_id) VALUES ('Milk Itambé 1L Integral', '7896051111016', 'Daily milk1', (SELECT id FROM _subcategory WHERE name = 'Milk'));
+INSERT INTO _product(name, barcode, description, subcategory_id) VALUES ('Milk Parmalat 1L Integral', '7896034610017', 'Daily milk2', (SELECT id FROM _subcategory WHERE name = 'Milk'));
+INSERT INTO _product(name, barcode, description, subcategory_id) VALUES ('Sachê Sheba Gatos Filhotes Carne ao Molho 85g', '7896029017678', 'Yuki preferred', (SELECT id FROM _subcategory WHERE name = 'Food'));
+INSERT INTO _product(name, barcode, description, subcategory_id) VALUES ('Sachê Wiskas Salmão 85g', '7896029000441', 'Looks good', (SELECT id FROM _subcategory WHERE name = 'Food'));

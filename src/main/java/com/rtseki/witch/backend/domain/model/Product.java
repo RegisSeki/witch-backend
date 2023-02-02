@@ -1,17 +1,13 @@
 package com.rtseki.witch.backend.domain.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
@@ -26,11 +22,14 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-@Table(name = "_subcategory",
+@Table(name = "_product",
 uniqueConstraints = {
-		@UniqueConstraint(columnNames = "name")
+		@UniqueConstraint(columnNames = "barcode")},
+indexes = {
+		@Index(columnList = "barcode"),
+		@Index(columnList = "name") 
 })
-public class Subcategory {
+public class Product {
 	
 	@EqualsAndHashCode.Include
 	@Id
@@ -38,34 +37,29 @@ public class Subcategory {
 	private Long id;
 	
 	@NotBlank
+	@EqualsAndHashCode.Include
+	private String barcode;
+	
+	@NotBlank
+	@EqualsAndHashCode.Include
 	private String name;
 	
 	private String description;
 	
 	@NotNull
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "category_id")
-	private Category category;
+	@JoinColumn(name = "subcategory_id")
+	private Subcategory subcategory;
 	
-	@OneToMany(mappedBy = "subcategory", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
-	private List<Product> products = new ArrayList<>();
-	
-	public Subcategory() {
+	public Product() {
 		
 	}
 	
-	public Subcategory(Long id, String name, String description, Category category) {
+	public Product(Long id, String barcode, String name, String description, Subcategory subcategory) {
 		this.id = id;
+		this.barcode = barcode;
 		this.name = name;
 		this.description = description;
-		this.category = category;
-	}
-	
-	public Subcategory(Long id, String name, String description, Category category, List<Product> products) {
-		this.id = id;
-		this.name = name;
-		this.description = description;
-		this.category = category;
-		this.products = products;
+		this.subcategory = subcategory;
 	}
 }
