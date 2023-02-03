@@ -8,7 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserRequest {
-
 	@NotBlank
 	private String firstname;
 	

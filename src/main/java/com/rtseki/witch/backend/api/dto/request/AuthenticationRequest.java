@@ -7,7 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AuthenticationRequest {
-
 	@NotBlank
 	private String email;
 	

@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ProductRequest {
-
 	@NotNull
 	private Subcategory subcategory;
 	
