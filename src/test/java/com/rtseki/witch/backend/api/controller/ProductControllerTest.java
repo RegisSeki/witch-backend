@@ -20,8 +20,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -285,5 +287,50 @@ public class ProductControllerTest {
 				"HTTP Status code should be 400");
         assertTrue(response.getBody().toString().contains(
         		"Product name is already taken"));
+	}
+	
+	@Test
+	@DisplayName("Find product by id")
+	@Order(9)
+	void testFindProductById_whenGivenCorrectId_returnProperProduct() {
+		// Arrange
+		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+
+		// Act
+		ResponseEntity<ProductResponse> response = restTemplate.exchange(
+				"/api/v1/products/" + createdProduct.getId(), HttpMethod.GET, requestEntity,
+				new ParameterizedTypeReference<ProductResponse>() {
+				});
+		ProductResponse productResponse = response.getBody();
+
+		// Assert
+		assertEquals(HttpStatus.OK, response.getStatusCode(), 
+				"HTTP Status code should be 200");
+		assertEquals(productResponse.getName(), createdProduct.getName(),
+				"Returned product name seems to be incorrect");
+		assertEquals(productResponse.getDescription(), createdProduct.getDescription(),
+				"Returned product description seems to be incorrect");
+		assertEquals(productResponse.getSubcategory().getId(), createdProduct.getSubcategory().getId(),
+				"Returned subcategory id seems to be incorrect");
+	}
+	
+	@Test
+	@DisplayName("Do not find product by id")
+	@Order(10)
+	void testFindProductById_whenGivenIncorrectId_return404() {
+		// Arrange
+		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+
+		// Act
+		ResponseEntity<String> response = restTemplate.exchange("/api/v1/products/10000",
+				HttpMethod.GET,
+				requestEntity, 
+				String.class);
+
+		// Assert
+		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(),
+				"HTTP Status code should be 404");
+        assertTrue(response.getBody().toString().contains(
+        		"Resource not found. Id:"));
 	}
 }

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.rtseki.witch.backend.domain.exception.BusinessException;
+import com.rtseki.witch.backend.domain.exception.ResourceNotFoundException;
 import com.rtseki.witch.backend.domain.model.Product;
 import com.rtseki.witch.backend.domain.model.Subcategory;
 import com.rtseki.witch.backend.domain.repository.ProductRepository;
@@ -24,6 +25,11 @@ public class ProductService {
 		checkDuplicatedName(product);
 		loadSubcategoryData(product);
 		return repository.save(product);
+	}
+	
+	public Product findById(Long productId) {
+		return repository.findById(productId)
+				.orElseThrow(() -> new ResourceNotFoundException(productId)); 
 	}
 	
 	private void checkDuplicatedBarcode(Product product) {
