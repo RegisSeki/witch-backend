@@ -376,11 +376,11 @@ public class CategoryControllerTest {
 			CategoryResponseList categoryResponseList = response.getBody();
 			
 			//Assert
-			assertEquals(totalCategories, categoryResponseList.getTotalElements(),
+			assertEquals(totalCategories, categoryResponseList.getPageDetails().getTotalElements(),
 					"It should be the same number of elements");
-			assertEquals(defaultPageSize, categoryResponseList.getPageSize(),
+			assertEquals(defaultPageSize, categoryResponseList.getPageDetails().getPageSize(),
 					"The number of the items that should be showed");
-			assertEquals((totalCategories / defaultPageSize), categoryResponseList.getTotalPages());
+			assertEquals((totalCategories / defaultPageSize), categoryResponseList.getPageDetails().getTotalPages());
 			assertEquals(defaultPageSize, categoryResponseList.getCategories().size(),
 					"The number of the items that should be showed");
 		}
@@ -403,11 +403,11 @@ public class CategoryControllerTest {
 			CategoryResponseList categoryResponseList = response.getBody();
 			
 			//Assert
-			assertEquals(totalCategories, categoryResponseList.getTotalElements(),
+			assertEquals(totalCategories, categoryResponseList.getPageDetails().getTotalElements(),
 					"It should be the same number of elements");
-			assertEquals(customSize, categoryResponseList.getPageSize(),
+			assertEquals(customSize, categoryResponseList.getPageDetails().getPageSize(),
 					"The number of the items that should be showed check the custom size at the arrange area of the test");
-			assertEquals((totalCategories / customSize), categoryResponseList.getTotalPages());
+			assertEquals((totalCategories / customSize), categoryResponseList.getPageDetails().getTotalPages());
 			assertEquals(customSize, categoryResponseList.getCategories().size(),
 					"The number of the items that should be showed");	
 		}
@@ -429,11 +429,11 @@ public class CategoryControllerTest {
 					});
 			CategoryResponseList categoryResponseList = response.getBody();
 			//Assert
-			assertEquals(totalCategories, categoryResponseList.getTotalElements(),
+			assertEquals(totalCategories, categoryResponseList.getPageDetails().getTotalElements(),
 					"It should be the same number of elements");
-			assertEquals(defaultPageSize, categoryResponseList.getPageSize(),
+			assertEquals(defaultPageSize, categoryResponseList.getPageDetails().getPageSize(),
 					"The number of the items that should be showed");			
-			assertEquals(customPage, categoryResponseList.getPageNumber(),
+			assertEquals(customPage, categoryResponseList.getPageDetails().getPageNumber(),
 					"The page should be the exactly customPage");
 			assertEquals(defaultPageSize, categoryResponseList.getCategories().size(),
 					"The number of the items that should be showed");

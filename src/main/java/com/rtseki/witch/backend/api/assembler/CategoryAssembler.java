@@ -11,6 +11,7 @@ import com.rtseki.witch.backend.api.dto.request.CategoryRequest;
 import com.rtseki.witch.backend.api.dto.response.CategoryResponse;
 import com.rtseki.witch.backend.api.dto.response.CategoryResponseList;
 import com.rtseki.witch.backend.api.dto.response.CategorySubcategoriesResponse;
+import com.rtseki.witch.backend.api.dto.response.PaginationDetails;
 import com.rtseki.witch.backend.domain.model.Category;
 
 import lombok.AllArgsConstructor;
@@ -36,11 +37,13 @@ public class CategoryAssembler {
 	public CategoryResponseList toCategoryResponseList(Page<Category> categories) {
 		CategoryResponseList result = new CategoryResponseList();
 		List<CategoryResponse> categoryResponseList = new ArrayList<>();
-
-		result.setPageNumber(categories.getNumber());
-		result.setTotalElements(categories.getTotalElements());
-		result.setPageSize(categories.getSize());
-		result.setTotalPages(categories.getTotalPages());
+		PaginationDetails pageDetails = new PaginationDetails();
+		
+		pageDetails.setPageNumber(categories.getNumber());
+		pageDetails.setTotalElements(categories.getTotalElements());
+		pageDetails.setPageSize(categories.getSize());
+		pageDetails.setTotalPages(categories.getTotalPages());
+		result.setPageDetails(pageDetails);
 
 		for (Category category : categories) {
 			CategoryResponse categoryResponse = modelMapper.map(category, CategoryResponse.class);
