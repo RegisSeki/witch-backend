@@ -443,11 +443,11 @@ public class SubcategoryControllerTest {
 		assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(),
 				"HTTP Status code should be 204");
 		assertEquals(subcategories.size(), 0,
-				"It should not have any category");
+				"It should not have any subcategory");
 	}
 	
 	@Test
-	@DisplayName("Do not delete category")
+	@DisplayName("Do not delete subcategory")
 	@Order(15)
 	void testDeleteSubcategory_whenProvidedInexistentId_thenReturn404() {
 		// Arrange 
