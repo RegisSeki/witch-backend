@@ -88,4 +88,19 @@ public class ProductTest {
 		// Assert
 		assertEquals(foundProduct.get(), createdProduct);
 	}
+	
+	@Test
+	@DisplayName("Update product")
+	void testUpdateProduct_whenCorrectDetails_thenReturnUpdatedProduct() {
+		// Arrange
+		Product createdProduct = entityManager.persistAndFlush(product);
+		createdProduct.setBarcode("7896051111016");
+		createdProduct.setName("Updated product name");
+		
+		// Act
+		Product updatedProduct = repository.save(createdProduct);
+		
+		// Act and Assert
+		assertEquals(updatedProduct, createdProduct);
+	}
 }

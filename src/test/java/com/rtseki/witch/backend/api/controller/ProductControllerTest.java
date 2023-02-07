@@ -33,9 +33,11 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import com.rtseki.witch.backend.api.dto.response.AuthenticationResponse;
 import com.rtseki.witch.backend.api.dto.response.ProductResponse;
 import com.rtseki.witch.backend.domain.model.Category;
+import com.rtseki.witch.backend.domain.model.Product;
 import com.rtseki.witch.backend.domain.model.Subcategory;
 import com.rtseki.witch.backend.domain.model.User;
 import com.rtseki.witch.backend.domain.repository.CategoryRepository;
+import com.rtseki.witch.backend.domain.repository.ProductRepository;
 import com.rtseki.witch.backend.domain.repository.SubcategoryRepository;
 import com.rtseki.witch.backend.domain.service.AuthenticationService;
 
@@ -55,6 +57,9 @@ public class ProductControllerTest {
 
 	@Autowired
 	private AuthenticationService authService;
+	
+	@Autowired
+	private ProductRepository repository;
 	
 	@Autowired
 	private SubcategoryRepository subcategoryRepository;
@@ -332,5 +337,270 @@ public class ProductControllerTest {
 				"HTTP Status code should be 404");
         assertTrue(response.getBody().toString().contains(
         		"Resource not found. Id:"));
+	}
+	
+	@Test
+	@DisplayName("Update Product barcode and name")
+	@Order(11)
+	void testUpdateProduct_whenValidParams_thenReturnProductDetails() throws JSONException {
+		// Arrange
+		JSONObject subcategoryDetailsRequestJson = new JSONObject();
+		subcategoryDetailsRequestJson.put("id", createdSubcategory.getId().toString());
+		JSONObject productDetailsRequestJson = new JSONObject();
+		productDetailsRequestJson.put("subcategory", subcategoryDetailsRequestJson);
+		productDetailsRequestJson.put("barcode", "7896029000441");
+		productDetailsRequestJson.put("name", "Sachê Wiskas Salmão 85g");
+		productDetailsRequestJson.put("description", "Yuki preferred");
+		
+		HttpEntity<String> requestEntity = new HttpEntity<>(
+				productDetailsRequestJson.toString(), headers);
+
+		// Act
+		ResponseEntity<ProductResponse> response = restTemplate.exchange(
+				"/api/v1/products/" + createdProduct.getId(), HttpMethod.PUT, requestEntity,
+				new ParameterizedTypeReference<ProductResponse>() {
+				});
+		
+		ProductResponse updatedProduct = response.getBody();
+
+		// Assert
+		assertEquals(HttpStatus.OK, response.getStatusCode(),
+				"HTTP Status code should be 201");
+		assertEquals(productDetailsRequestJson.getString("barcode"), updatedProduct.getBarcode(),
+				"Returned product barcode seems to be incorrect");
+		assertEquals(productDetailsRequestJson.getString("name"), updatedProduct.getName(),
+				"Returned product name seems to be incorrect");
+		assertEquals(productDetailsRequestJson.getString("description"), updatedProduct.getDescription(),
+				"Returned product description seems to be incorrect");
+		assertEquals(subcategoryDetailsRequestJson.getString("id"), updatedProduct.getSubcategory().getId().toString(),
+				"Returned product id seems to be incorrect");
+	}
+	
+	@Test
+	@DisplayName("Update Product description keeping barcode and name")
+	@Order(12)
+	void testUpdateProduct_whenChangeOnlyDescription_thenReturnProductDetails() throws JSONException {
+		// Arrange
+		JSONObject subcategoryDetailsRequestJson = new JSONObject();
+		subcategoryDetailsRequestJson.put("id", createdSubcategory.getId().toString());
+		JSONObject productDetailsRequestJson = new JSONObject();
+		productDetailsRequestJson.put("subcategory", subcategoryDetailsRequestJson);
+		productDetailsRequestJson.put("barcode", "7896029000441");
+		productDetailsRequestJson.put("name", "Sachê Wiskas Salmão 85g");
+		productDetailsRequestJson.put("description", "Yuki preferred for sure");
+		
+		HttpEntity<String> requestEntity = new HttpEntity<>(
+				productDetailsRequestJson.toString(), headers);
+
+		// Act
+		ResponseEntity<ProductResponse> response = restTemplate.exchange(
+				"/api/v1/products/" + createdProduct.getId(), HttpMethod.PUT, requestEntity,
+				new ParameterizedTypeReference<ProductResponse>() {
+				});
+		
+		ProductResponse updatedProduct = response.getBody();
+
+		// Assert
+		assertEquals(HttpStatus.OK, response.getStatusCode(),
+				"HTTP Status code should be 201");
+		assertEquals(productDetailsRequestJson.getString("barcode"), updatedProduct.getBarcode(),
+				"Returned product barcode seems to be incorrect");
+		assertEquals(productDetailsRequestJson.getString("name"), updatedProduct.getName(),
+				"Returned product name seems to be incorrect");
+		assertEquals(productDetailsRequestJson.getString("description"), updatedProduct.getDescription(),
+				"Returned product description seems to be incorrect");
+		assertEquals(subcategoryDetailsRequestJson.getString("id"), updatedProduct.getSubcategory().getId().toString(),
+				"Returned product id seems to be incorrect");
+	}
+	
+	@Test
+	@DisplayName("Do not update Product when barcode is already used")
+	@Order(13)
+	void testUpdateProduct_whenBarcodeIsAlreadyUsed_thenReturn400() throws JSONException {
+		// Arrange
+		Product subject = new Product(null, "7896029028391", "Petisco salmão Whiskas pote 40G", null, createdSubcategory);
+		repository.save(subject);
+		
+		JSONObject subcategoryDetailsRequestJson = new JSONObject();
+		subcategoryDetailsRequestJson.put("id", createdSubcategory.getId().toString());
+		JSONObject productDetailsRequestJson = new JSONObject();
+		productDetailsRequestJson.put("subcategory", subcategoryDetailsRequestJson);
+		productDetailsRequestJson.put("barcode", "7896029028391");
+		productDetailsRequestJson.put("name", "Sachê Wiskas Salmão 85g");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(
+				productDetailsRequestJson.toString(), headers);
+		try {
+			// Act
+			ResponseEntity<String> response = restTemplate.exchange(
+					"/api/v1/products/" + createdProduct.getId(), HttpMethod.PUT, requestEntity,
+					String.class);
+			
+			// Assert
+			assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+					"HTTP Status code should be 400");
+	        assertTrue(response.getBody().toString().contains(
+	        		"Product barcode is already register"));
+		} finally {
+			repository.delete(subject);
+		}
+	}
+	
+	@Test
+	@DisplayName("Do not update Product when name is already used")
+	@Order(14)
+	void testUpdateProduct_whenNameIsAlreadyUsed_thenReturn400() throws JSONException {
+		// Arrange
+		Product subject = new Product(null, "7896029028391", "Petisco salmão Whiskas pote 40G", null, createdSubcategory);
+		repository.save(subject);
+		
+		JSONObject subcategoryDetailsRequestJson = new JSONObject();
+		subcategoryDetailsRequestJson.put("id", createdSubcategory.getId().toString());
+		JSONObject productDetailsRequestJson = new JSONObject();
+		productDetailsRequestJson.put("subcategory", subcategoryDetailsRequestJson);
+		productDetailsRequestJson.put("barcode", "7896051111016");
+		productDetailsRequestJson.put("name", "Petisco salmão Whiskas pote 40G");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(
+				productDetailsRequestJson.toString(), headers);
+		try {
+			// Act
+			ResponseEntity<String> response = restTemplate.exchange(
+					"/api/v1/products/" + createdProduct.getId(), HttpMethod.PUT, requestEntity,
+					String.class);
+			
+			// Assert
+			assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+					"HTTP Status code should be 400");
+	        assertTrue(response.getBody().toString().contains(
+	        		"Product name is already taken"));
+		} finally {
+			repository.delete(subject);
+		}
+	}
+	
+	@Test
+	@DisplayName("Do not update Product when Subcategory param is missing")
+	@Order(15)
+	void testUpdateProduct_whenSubcategoryParamIsMissing_thenReturn400() throws JSONException {
+		// Arrange
+		JSONObject productDetailsRequestJson = new JSONObject();
+		productDetailsRequestJson.put("barcode", "7896051111016");
+		productDetailsRequestJson.put("name", "Petisco salmão Whiskas pote 40G");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(
+				productDetailsRequestJson.toString(), headers);
+
+		// Act
+		ResponseEntity<String> response = restTemplate.exchange(
+				"/api/v1/products/" + createdProduct.getId(), HttpMethod.PUT, requestEntity,
+				String.class);
+		
+		// Assert
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+				"HTTP Status code should be 400");
+		assertTrue(response.getBody().toString().contains("\"name\":\"subcategory\""));
+	}
+	
+	@Test
+	@DisplayName("Do not update Product when barcode param is missing")
+	@Order(16)
+	void testUpdateProduct_whenBarcodeParamIsMissing_thenReturn400() throws JSONException {
+		// Arrange
+		JSONObject subcategoryDetailsRequestJson = new JSONObject();
+		subcategoryDetailsRequestJson.put("id", createdSubcategory.getId().toString());
+		JSONObject productDetailsRequestJson = new JSONObject();
+		productDetailsRequestJson.put("subcategory", subcategoryDetailsRequestJson);
+		productDetailsRequestJson.put("name", "Petisco salmão Whiskas pote 40G");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(
+				productDetailsRequestJson.toString(), headers);
+
+		// Act
+		ResponseEntity<String> response = restTemplate.exchange(
+				"/api/v1/products/" + createdProduct.getId(), HttpMethod.PUT, requestEntity,
+				String.class);
+		
+		// Assert
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+				"HTTP Status code should be 400");
+		assertTrue(response.getBody().toString().contains("\"name\":\"barcode\""));
+	}
+	
+	@Test
+	@DisplayName("Do not update Product when barcode param is blank")
+	@Order(17)
+	void testUpdateProduct_whenBarcodeIsBlank_thenReturn400() throws JSONException {
+		// Arrange
+		JSONObject subcategoryDetailsRequestJson = new JSONObject();
+		subcategoryDetailsRequestJson.put("id", createdSubcategory.getId().toString());
+		JSONObject productDetailsRequestJson = new JSONObject();
+		productDetailsRequestJson.put("subcategory", subcategoryDetailsRequestJson);
+		productDetailsRequestJson.put("barcode", "");
+		productDetailsRequestJson.put("name", "Petisco salmão Whiskas pote 40G");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(
+				productDetailsRequestJson.toString(), headers);
+
+		// Act
+		ResponseEntity<String> response = restTemplate.exchange(
+				"/api/v1/products/" + createdProduct.getId(), HttpMethod.PUT, requestEntity,
+				String.class);
+		
+		// Assert
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+				"HTTP Status code should be 400");
+		assertTrue(response.getBody().toString().contains("\"name\":\"barcode\""));
+	}
+	
+	@Test
+	@DisplayName("Do not update Product when name param is missing")
+	@Order(18)
+	void testUpdateProduct_whenNameParamIsMissing_thenReturn400() throws JSONException {
+		// Arrange
+		JSONObject subcategoryDetailsRequestJson = new JSONObject();
+		subcategoryDetailsRequestJson.put("id", createdSubcategory.getId().toString());
+		JSONObject productDetailsRequestJson = new JSONObject();
+		productDetailsRequestJson.put("subcategory", subcategoryDetailsRequestJson);
+		productDetailsRequestJson.put("barcode", "7896051111016");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(
+				productDetailsRequestJson.toString(), headers);
+
+		// Act
+		ResponseEntity<String> response = restTemplate.exchange(
+				"/api/v1/products/" + createdProduct.getId(), HttpMethod.PUT, requestEntity,
+				String.class);
+		
+		// Assert
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+				"HTTP Status code should be 400");
+		assertTrue(response.getBody().toString().contains("\"name\":\"name\""));
+	}
+	
+	@Test
+	@DisplayName("Do not update Product when name param is blank")
+	@Order(19)
+	void testUpdateProduct_whenNameIsBlank_thenReturn400() throws JSONException {
+		// Arrange
+		JSONObject subcategoryDetailsRequestJson = new JSONObject();
+		subcategoryDetailsRequestJson.put("id", createdSubcategory.getId().toString());
+		JSONObject productDetailsRequestJson = new JSONObject();
+		productDetailsRequestJson.put("subcategory", subcategoryDetailsRequestJson);
+		productDetailsRequestJson.put("barcode", "7896051111016");
+		productDetailsRequestJson.put("name", " ");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(
+				productDetailsRequestJson.toString(), headers);
+
+		// Act
+		ResponseEntity<String> response = restTemplate.exchange(
+				"/api/v1/products/" + createdProduct.getId(), HttpMethod.PUT, requestEntity,
+				String.class);
+		
+		// Assert
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+				"HTTP Status code should be 400");
+		assertTrue(response.getBody().toString().contains("\"name\":\"name\""));
 	}
 }
