@@ -47,7 +47,6 @@ import com.rtseki.witch.backend.domain.service.AuthenticationService;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class ProductControllerTest {
 	@Value("${server.port}")
 	private int serverPort;
