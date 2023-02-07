@@ -218,8 +218,37 @@ public class CategoryControllerTest {
 	}
 
 	@Test
-	@DisplayName("Update category")
+	@DisplayName("Update category description")
 	@Order(7)
+	void testUpdateCategory_whenNameStillTheSame_thenReturnUpdatedCategory() throws JSONException {
+		// Arrange
+		JSONObject updateCategoryJson = new JSONObject();
+		updateCategoryJson.put("name", "Food");
+		updateCategoryJson.put("description", "Thing to eat");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(updateCategoryJson.toString(), headers);
+
+		// Act
+		ResponseEntity<CategoryResponse> response = testRestTemplate.exchange(
+				"/api/v1/categories/" + createdCategory.getId(), HttpMethod.PUT, requestEntity,
+				new ParameterizedTypeReference<CategoryResponse>() {
+				});
+		CategoryResponse updatedCategoryResponse = response.getBody();
+
+		// Assert
+		assertEquals(HttpStatus.OK, response.getStatusCode(),
+				"HTTP Status code should be 200");
+		assertEquals(updateCategoryJson.getString("name"), updatedCategoryResponse.getName(),
+				"Returned category name seems to be incorrect");
+		assertEquals(updatedCategoryResponse.getDescription(), updatedCategoryResponse.getDescription(),
+				"Returned category description seems to be incorrect");
+		assertEquals(createdCategory.getId(), updatedCategoryResponse.getId(),
+				"Returned category id seems to be incorrect");
+	}
+	
+	@Test
+	@DisplayName("Update category name")
+	@Order(8)
 	void testUpdateCategory_whenValidParams_thenReturnUpdatedCategory() throws JSONException {
 		// Arrange
 		JSONObject updateCategoryJson = new JSONObject();
@@ -248,29 +277,36 @@ public class CategoryControllerTest {
 	
 	@Test
 	@DisplayName("Do not update category")
-	@Order(8)
+	@Order(9)
 	void testUpdateCategory_whenCategoryNameIsAlreadyUsed_thenReturn400() throws JSONException {
-		// Arrange
-		JSONObject updateCategoryJson = new JSONObject();
-		updateCategoryJson.put("name", "Eletronic Games");
-
-		HttpEntity<String> requestEntity = new HttpEntity<>(updateCategoryJson.toString(), headers);
-
-		// Act
-		ResponseEntity<String> response = testRestTemplate.exchange(
-				"/api/v1/categories/" + createdCategory.getId(), HttpMethod.PUT, requestEntity,
-				String.class);
-
-		// Assert
-		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
-				"HTTP Status code should be 400");
-        assertTrue(response.getBody().toString().contains(
-        		"Category name is already taken"));
+		Category subject = new Category(null, "Misc", null);
+		try {
+			// Arrange
+			subject = categoryRepository.save(subject);
+			
+			JSONObject updateCategoryJson = new JSONObject();
+			updateCategoryJson.put("name", subject.getName());
+	
+			HttpEntity<String> requestEntity = new HttpEntity<>(updateCategoryJson.toString(), headers);
+	
+			// Act
+			ResponseEntity<String> response = testRestTemplate.exchange(
+					"/api/v1/categories/" + createdCategory.getId(), HttpMethod.PUT, requestEntity,
+					String.class);
+	
+			// Assert
+			assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+					"HTTP Status code should be 400");
+	        assertTrue(response.getBody().toString().contains(
+	        		"Category name is already taken"));
+		} finally {
+			categoryRepository.delete(subject);
+		}
 	}
 	
 	@Test
 	@DisplayName("Delete category")
-	@Order(9)
+	@Order(10)
 	void testDeleteCategory_whenProvidedCorrectId_thenReturn204() {
 		// Arrange 
 		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
@@ -290,7 +326,7 @@ public class CategoryControllerTest {
 	
 	@Test
 	@DisplayName("Do not delete category")
-	@Order(10)
+	@Order(11)
 	void testDeleteCategory_whenProvidedIncorrectId_thenReturn404() {
 		// Arrange 
 		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
@@ -327,7 +363,7 @@ public class CategoryControllerTest {
 		
 		@Test
 		@DisplayName("Find all categories with default pagination")
-		@Order(11)
+		@Order(12)
 		void testFindAllCategories_whenDefaultPagination_thenReturnProperCategories() {
 			// Arrange
 			HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
@@ -351,7 +387,7 @@ public class CategoryControllerTest {
 		
 		@Test
 		@DisplayName("Find all categories with custom size pagination")
-		@Order(12)
+		@Order(13)
 		void testFindAllCategories_whenCustomSizePaginationValue_thenReturnProperCategories() {
 			// Arrange
 			int customSize = 10;
@@ -378,7 +414,7 @@ public class CategoryControllerTest {
 		
 		@Test
 		@DisplayName("Find all categories with custom page pagination")
-		@Order(13)
+		@Order(14)
 		void testFindAllCategories_whenCustomPagePaginationValue_thenReturnProperCategories() {
 			// Arrange
 			int customPage = 1;
@@ -441,7 +477,7 @@ public class CategoryControllerTest {
 		
 		@Test
 		@DisplayName("Find category by id with all subcategories associated")
-		@Order(14)
+		@Order(15)
 		void testFindCategoryById_whenNeedSubcategories_thenReturnCategoryAndSubcategoriesList() {
 			// Arrange
 			HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
@@ -463,7 +499,7 @@ public class CategoryControllerTest {
 		
 		@Test
 		@DisplayName("Do not delete Category with Associated Subcategory")
-		@Order(15)
+		@Order(16)
 		void testDeleteCategory_whenSubcategoryAssociated_thenReturn404() {
 			// Arrange 
 			HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
@@ -482,7 +518,7 @@ public class CategoryControllerTest {
 		
 		@Test
 		@DisplayName("Delete Category when do not have associated Subcategory")
-		@Order(16)
+		@Order(17)
 		void testDeleteCategory_whenNoSubcategoryAssociated_thenReturn204() {
 			// Arrange 
 			subcategoryRepository.delete(subcategoryToDeleteTest);

@@ -1,5 +1,7 @@
 package com.rtseki.witch.backend.domain.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -40,7 +42,7 @@ public class CategoryService {
 	
 	public Category update(Long categoryId, Category category) {
 		try {
-			checkDuplicateCategoryName(category);
+			checkDuplicateCategoryName(category, categoryId);
 			Category entity = categoryRepository.getReferenceById(categoryId);
 			updateCategoryData(entity, category);
 			return categoryRepository.save(entity);
@@ -65,12 +67,20 @@ public class CategoryService {
 		entity.setDescription(category.getDescription());
 	}
 	
-	private void checkDuplicateCategoryName(Category category) {
-		boolean isCategoryExist = categoryRepository.findByName(category.getName())
-				.stream().anyMatch(existCategory -> !existCategory.equals(category));
+	private void checkDuplicateCategoryName(Category category, Long categoryId) {
+		Optional<Category> existedCategory = categoryRepository.findByName(category.getName());
 		
-		if(isCategoryExist) {
+		if(existedCategory.isPresent() && existedCategory.get().getId() != categoryId) {
 			throw new BusinessException("Category name is already taken");
 		}
+	}
+	
+	private void checkDuplicateCategoryName(Category category) {
+		boolean isCategoryExist = categoryRepository.findByName(category.getName())
+				.stream().anyMatch(existProduct -> !existProduct.equals(category));
+			
+			if(isCategoryExist) {
+				throw new BusinessException("Category name is already taken");
+			}
 	}
 }
