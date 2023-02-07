@@ -256,7 +256,7 @@ public class SubcategoryControllerTest {
 	}
 	
 	@Test
-	@DisplayName("Update Subcategory")
+	@DisplayName("Update Subcategory name")
 	@Order(8)
 	void testUpdateSubcategory_whenValidParams_thenReturnSubcategoryDetails() throws JSONException {
 		// Arrange
@@ -290,34 +290,74 @@ public class SubcategoryControllerTest {
 	}
 	
 	@Test
-	@DisplayName("Do not update Subcategory when name is repeated")
+	@DisplayName("Update Subcategory description keeping the same name")
 	@Order(9)
-	void testUpdateSubcategory_whenNameIsAlreadyUsed_thenReturn400() throws JSONException {
+	void testUpdateSubcategory_whenChangeOnlyDescription_thenReturnSubcategoryDetails() throws JSONException {
 		// Arrange
 		JSONObject categoryDetailsRequestJson = new JSONObject();
 		categoryDetailsRequestJson.put("id", "1");
 		JSONObject subcategoryDetailsRequestJson = new JSONObject();
 		subcategoryDetailsRequestJson.put("category", categoryDetailsRequestJson);
 		subcategoryDetailsRequestJson.put("name", "Meat");
+		subcategoryDetailsRequestJson.put("description", "Love barbecue so much");
 
 		HttpEntity<String> requestEntity = new HttpEntity<>(
 				subcategoryDetailsRequestJson.toString(), headers);
 
 		// Act
-		ResponseEntity<String> response = restTemplate.exchange(
+		ResponseEntity<SubcategoryResponse> response = restTemplate.exchange(
 				"/api/v1/subcategories/" + createdSubcategory.getId(), HttpMethod.PUT, requestEntity,
-				String.class);
+				new ParameterizedTypeReference<SubcategoryResponse>() {
+				});
+		
+		SubcategoryResponse updatedSubcategory = response.getBody();
 		
 		// Assert
-		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
-				"HTTP Status code should be 400");
-        assertTrue(response.getBody().toString().contains(
-        		"Subcategory name is already taken"));
+		assertEquals(HttpStatus.OK, response.getStatusCode(),
+				"HTTP Status code should be 201");
+		assertEquals(subcategoryDetailsRequestJson.getString("name"), updatedSubcategory.getName(),
+				"Returned subcategory name seems to be incorrect");
+		assertEquals(subcategoryDetailsRequestJson.getString("description"), updatedSubcategory.getDescription(),
+				"Returned subcategory description seems to be incorrect");
+		assertEquals(categoryDetailsRequestJson.getString("id"), updatedSubcategory.getCategory().getId().toString(),
+				"Returned category id seems to be incorrect");
+	}
+	
+	@Test
+	@DisplayName("Do not update Subcategory when name is repeated")
+	@Order(10)
+	void testUpdateSubcategory_whenNameIsAlreadyUsed_thenReturn400() throws JSONException {
+		// Arrange
+		Subcategory subject = new Subcategory(null, "Healthy", null, createdCategory);
+		repository.save(subject);
+		
+		JSONObject categoryDetailsRequestJson = new JSONObject();
+		categoryDetailsRequestJson.put("id", createdCategory.getId());
+		JSONObject subcategoryDetailsRequestJson = new JSONObject();
+		subcategoryDetailsRequestJson.put("category", categoryDetailsRequestJson);
+		subcategoryDetailsRequestJson.put("name", "Healthy");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(
+				subcategoryDetailsRequestJson.toString(), headers);
+		try {
+			// Act
+			ResponseEntity<String> response = restTemplate.exchange(
+					"/api/v1/subcategories/" + createdSubcategory.getId(), HttpMethod.PUT, requestEntity,
+					String.class);
+			
+			// Assert
+			assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+					"HTTP Status code should be 400");
+	        assertTrue(response.getBody().toString().contains(
+	        		"Subcategory name is already taken"));
+		} finally {
+			repository.delete(subject);
+		}
 	}
 	
 	@Test
 	@DisplayName("Do not update Subcategory when category param is missing")
-	@Order(10)
+	@Order(11)
 	void testUpdateSubcategory_whenCategoryIsMissing_thenReturn400() throws JSONException {
 		// Arrange
 		JSONObject subcategoryDetailsRequestJson = new JSONObject();
@@ -339,7 +379,7 @@ public class SubcategoryControllerTest {
 	
 	@Test
 	@DisplayName("Do not update Subcategory when name is missing")
-	@Order(11)
+	@Order(12)
 	void testUpdateSubcategory_whenNameIsMissing_thenReturn400() throws JSONException {
 		// Arrange
 		JSONObject categoryDetailsRequestJson = new JSONObject();
@@ -363,7 +403,7 @@ public class SubcategoryControllerTest {
 	
 	@Test
 	@DisplayName("Do not update Subcategory when name is blank")
-	@Order(12)
+	@Order(13)
 	void testUpdateSubcategory_whenNameIsBlank_thenReturn400() throws JSONException {
 		// Arrange
 		JSONObject categoryDetailsRequestJson = new JSONObject();
@@ -388,7 +428,7 @@ public class SubcategoryControllerTest {
 	
 	@Test
 	@DisplayName("Delete Subcategory")
-	@Order(13)
+	@Order(14)
 	void testDeleteSubcategory_whenProvidedCorrectId_thenReturn204() {
 		// Arrange 
 		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
@@ -408,7 +448,7 @@ public class SubcategoryControllerTest {
 	
 	@Test
 	@DisplayName("Do not delete category")
-	@Order(14)
+	@Order(15)
 	void testDeleteSubcategory_whenProvidedInexistentId_thenReturn404() {
 		// Arrange 
 		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
@@ -449,7 +489,7 @@ public class SubcategoryControllerTest {
 		
 		@Test
 		@DisplayName("Find all subcategories with default pagination")
-		@Order(15)
+		@Order(16)
 		void testFindAllSubcategories_whenDefaultPagination_thenReturnProperSubcategories() {
 			// Arrange
 			HttpEntity<String> requestEntity = new HttpEntity<String>(headers);

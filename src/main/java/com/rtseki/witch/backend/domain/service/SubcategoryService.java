@@ -1,5 +1,7 @@
 package com.rtseki.witch.backend.domain.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -39,7 +41,7 @@ public class SubcategoryService {
 	}
 	
 	public Subcategory update(Long subcategoryId, Subcategory subcategory) {
-		checkDuplicateSubcategoryName(subcategory);
+		checkDuplicateSubcategoryName(subcategory, subcategoryId);
 		try {
 			Subcategory entity = repository.getReferenceById(subcategoryId);
 			updateSubcategoryData(entity, subcategory);
@@ -69,6 +71,14 @@ public class SubcategoryService {
 				.stream().anyMatch(existSubcategory -> !existSubcategory.equals(subcategory));
 		
 		if(isSubcategoryExist) {
+			throw new BusinessException("Subcategory name is already taken");
+		}
+	}
+	
+	private void checkDuplicateSubcategoryName(Subcategory subcategory, Long subcategoryId) {
+		Optional<Subcategory> existedSubcategory = repository.findByName(subcategory.getName());
+		
+		if(existedSubcategory.isPresent() && existedSubcategory.get().getId() != subcategoryId) {
 			throw new BusinessException("Subcategory name is already taken");
 		}
 	}
