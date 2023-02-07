@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.rtseki.witch.backend.api.dto.request.SubcategoryRequest;
 import com.rtseki.witch.backend.api.dto.response.PaginationDetails;
+import com.rtseki.witch.backend.api.dto.response.SubcategoryProductsResponse;
 import com.rtseki.witch.backend.api.dto.response.SubcategoryResponse;
 import com.rtseki.witch.backend.api.dto.response.SubcategoryResponseList;
 import com.rtseki.witch.backend.domain.model.Subcategory;
@@ -47,5 +48,9 @@ public class SubcategoryAssembler {
 		result.setSubcategories(subcategoryResponseList);
 		
 		return result;
+	}
+	
+	public SubcategoryProductsResponse toProductsResponse(Subcategory subcategory) {
+		return modelMapper.map(subcategory, SubcategoryProductsResponse.class);
 	}
 }

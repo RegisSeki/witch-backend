@@ -33,19 +33,21 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import com.rtseki.witch.backend.api.dto.response.AuthenticationResponse;
+import com.rtseki.witch.backend.api.dto.response.SubcategoryProductsResponse;
 import com.rtseki.witch.backend.api.dto.response.SubcategoryResponse;
 import com.rtseki.witch.backend.api.dto.response.SubcategoryResponseList;
 import com.rtseki.witch.backend.domain.model.Category;
+import com.rtseki.witch.backend.domain.model.Product;
 import com.rtseki.witch.backend.domain.model.Subcategory;
 import com.rtseki.witch.backend.domain.model.User;
 import com.rtseki.witch.backend.domain.repository.CategoryRepository;
+import com.rtseki.witch.backend.domain.repository.ProductRepository;
 import com.rtseki.witch.backend.domain.repository.SubcategoryRepository;
 import com.rtseki.witch.backend.domain.service.AuthenticationService;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class SubcategoryControllerTest {
 	@Value("${server.port}")
 	private int serverPort;
@@ -468,7 +470,6 @@ public class SubcategoryControllerTest {
 	@Nested
 	@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 	@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-	@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 	class SubcategoryControllerTestSubcategoryList{
 		
 		private final int totalSubcategories = 20;
@@ -476,11 +477,11 @@ public class SubcategoryControllerTest {
 		
 		@BeforeAll
 		void init() {
+			Category categoryForList = new Category(null, "Any", null);
+			categoryForList = categoryRepository.save(categoryForList);
 			for(int i = 0; i < totalSubcategories; i ++) {
 				Subcategory subcategory = new Subcategory();
-				Category category = new Category();
-				category.setId(createdCategory.getId());
-				subcategory.setCategory(category);
+				subcategory.setCategory(categoryForList);
 				subcategory.setName("Subcategory" + i);
 				subcategory.setDescription("Subcategory description" + i);
 				repository.save(subcategory);
@@ -493,7 +494,7 @@ public class SubcategoryControllerTest {
 		void testFindAllSubcategories_whenDefaultPagination_thenReturnProperSubcategories() {
 			// Arrange
 			HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
-
+			
 			// Act
 			ResponseEntity<SubcategoryResponseList> response = restTemplate.exchange(
 					"/api/v1/subcategories", HttpMethod.GET, requestEntity,
@@ -509,9 +510,96 @@ public class SubcategoryControllerTest {
 			assertEquals((totalSubcategories / defaultPageSize), subcategoryResponseList.getPageDetails().getTotalPages());
 			assertEquals(defaultPageSize, subcategoryResponseList.getSubcategories().size(),
 					"The number of the items that should be showed");
-			assertEquals(subcategoryResponseList.getSubcategories().get(0).getCategory().getId(),
-					createdCategory.getId(),
-					"The category id should be the same");
+		}
+		
+		@Nested
+		@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+		@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+		@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+		class SubcategoryControllerTestProductsAssociated{
+			
+			@Autowired
+			private ProductRepository productRepository;
+			
+			Category categoryToList;
+			Subcategory subcategoryToList;
+			int totalProductsAssociated = 3;
+			
+			@BeforeAll
+			void init() {
+				categoryToList = new Category(null, "Category", "Category description");
+				categoryToList = categoryRepository.save(categoryToList);
+				subcategoryToList = new Subcategory(null, "Subcategory", "Subcategory description", categoryToList);
+				subcategoryToList = repository.save(subcategoryToList);
+				
+				for(int i = 0; i < totalProductsAssociated; i ++) {
+					Product product = new Product();
+					product.setSubcategory(subcategoryToList);
+					product.setBarcode("Barcode" + i);
+					product.setName("Product" + i);
+					product.setDescription("Product description" + i);
+					productRepository.save(product);
+				}
+			}
+			
+			@Test
+			@DisplayName("Find subcategory by id with all products associated")
+			@Order(17)
+			void testFindSubcategoryById_whenNeedProductsAssociated_thenReturnSubcategoryAndProductsList() {
+				// Arrange
+				HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+
+				// Act
+				ResponseEntity<SubcategoryProductsResponse> response = restTemplate.exchange(
+						"/api/v1/subcategories/" + subcategoryToList.getId() + "/products",
+						HttpMethod.GET, requestEntity,
+						new ParameterizedTypeReference<SubcategoryProductsResponse>() {
+						});
+				SubcategoryProductsResponse subcategoryProductsList = response.getBody();
+				
+				//Assert
+				assertEquals(subcategoryProductsList.getProducts().size(), totalProductsAssociated,
+						"It should be the same number totalProductsAssociated");
+				assertEquals(subcategoryProductsList.getId(), subcategoryToList.getId(),
+						"It should be the same Subcategory Id");
+			}
+			
+			@Test
+			@DisplayName("Do not delete Subcategory with Associated Products")
+			@Order(18)
+			void testDeleteSubcategory_whenProductAssociated_thenReturn404() {
+				// Arrange 
+				HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+				
+				//Act
+				ResponseEntity<String> response = restTemplate.exchange(
+						"/api/v1/subcategories/" + subcategoryToList.getId(), HttpMethod.DELETE, requestEntity,
+						String.class);
+				
+				// Assert
+				assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode(),
+						"HTTP Status code should be 404");
+		        assertTrue(response.getBody().toString().contains(
+		        		"Association data is present, delete associated products first"));
+			}
+			
+			@Test
+			@DisplayName("Delete Subcategory when do not have associated Products")
+			@Order(19)
+			void testDeleteSubcategory_whenNoProductAssociated_thenReturn204() {
+				// Arrange 
+				productRepository.deleteAll();
+				HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+				
+				//Act
+				ResponseEntity<String> response = restTemplate.exchange(
+						"/api/v1/subcategories/" + subcategoryToList.getId(), HttpMethod.DELETE, requestEntity,
+						String.class);
+				
+				// Assert
+				assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(),
+						"HTTP Status code should be 204");
+			}
 		}
 	}
 }

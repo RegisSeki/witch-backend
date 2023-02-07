@@ -18,6 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.rtseki.witch.backend.api.assembler.SubcategoryAssembler;
 import com.rtseki.witch.backend.api.dto.request.SubcategoryRequest;
+import com.rtseki.witch.backend.api.dto.response.SubcategoryProductsResponse;
 import com.rtseki.witch.backend.api.dto.response.SubcategoryResponse;
 import com.rtseki.witch.backend.api.dto.response.SubcategoryResponseList;
 import com.rtseki.witch.backend.domain.model.Subcategory;
@@ -69,5 +70,11 @@ public class SubcategoryController {
 	@GetMapping
 	public SubcategoryResponseList findAll(@PageableDefault(size = 5, page = 0) Pageable pageable) {
 		return assembler.toSubcategoryResponseList(service.findAll(pageable));
+	}
+	
+	@GetMapping("/{subcategoryId}/products")
+	public ResponseEntity<SubcategoryProductsResponse> findProducts(@PathVariable Long subcategoryId) {
+		Subcategory subcategory = service.findById(subcategoryId);
+		return ResponseEntity.ok().body(assembler.toProductsResponse(subcategory));
 	}
 }

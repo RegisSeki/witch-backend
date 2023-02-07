@@ -58,7 +58,7 @@ public class SubcategoryService {
 		} catch (EmptyResultDataAccessException e) {
 			throw new ResourceNotFoundException(subcategoryId);
 		} catch (DataIntegrityViolationException e) {
-			throw new DatabaseException(e.getMessage());
+			throw new DatabaseException("Association data is present, delete associated products first");
 		}		
 	}
 	
