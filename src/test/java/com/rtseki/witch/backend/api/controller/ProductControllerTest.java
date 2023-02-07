@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -602,5 +603,44 @@ public class ProductControllerTest {
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
 				"HTTP Status code should be 400");
 		assertTrue(response.getBody().toString().contains("\"name\":\"name\""));
+	}
+	
+	@Test
+	@DisplayName("Delete Product")
+	@Order(20)
+	void testDeleteSubcategory_whenProvidedCorrectId_thenReturn204() {
+		// Arrange 
+		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+		
+		//Act
+		ResponseEntity<Void> response = restTemplate.exchange(
+				"/api/v1/products/" + createdProduct.getId(), HttpMethod.DELETE, requestEntity,
+				Void.class);
+		List<Product> products = repository.findAll();		
+		
+		// Assert
+		assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(),
+				"HTTP Status code should be 204");
+		assertEquals(products.size(), 0,
+				"It should not have any product");
+	}
+	
+	@Test
+	@DisplayName("Do not delete product")
+	@Order(21)
+	void testDeleteProduct_whenProvidedInexistentId_thenReturn404() {
+		// Arrange 
+		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+		
+		//Act
+		ResponseEntity<String> response = restTemplate.exchange(
+				"/api/v1/products/" + createdProduct.getId(), HttpMethod.DELETE, requestEntity,
+				String.class);
+		
+		// Assert
+		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode()
+				,"HTTP Status code should be 404");
+        assertTrue(response.getBody().toString().contains(
+        		"Resource not found. Id:"));
 	}
 }

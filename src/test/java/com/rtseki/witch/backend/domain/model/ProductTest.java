@@ -1,9 +1,11 @@
 package com.rtseki.witch.backend.domain.model;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -102,5 +104,21 @@ public class ProductTest {
 		
 		// Act and Assert
 		assertEquals(updatedProduct, createdProduct);
+	}
+	
+	@Test
+	@DisplayName("Delete product")
+	void testDeleteProduct_whenProvidedId_thenNothing() {
+		// Arrange
+		Product createdProduct1 = entityManager.persistAndFlush(product);
+		Product createdProduct2 = new Product(null, "7896051111016", "Milk Itambé 1L Integral", "Delicious Milk", subcategory);
+		entityManager.persistAndFlush(createdProduct2);
+		
+		// Act
+		repository.deleteById(createdProduct2.getId());
+	    List<Product> products = repository.findAll();
+		
+		//Assert
+	    assertThat(products).hasSize(1).contains(createdProduct1);
 	}
 }

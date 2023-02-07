@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,4 +57,11 @@ public class ProductController {
 		Product product = service.update(productId, assembler.toModel(request));
 		return ResponseEntity.ok().body(assembler.toResponse(product));
 	}
+	
+	@DeleteMapping("/{productId}")
+	public ResponseEntity<Void> delete(@PathVariable Long productId) {
+		service.delete(productId);
+		return ResponseEntity.noContent().build();
+	}
+	
 }
