@@ -502,11 +502,11 @@ public class SubcategoryControllerTest {
 			SubcategoryResponseList subcategoryResponseList = response.getBody();
 			
 			//Assert
-			assertEquals(totalSubcategories, subcategoryResponseList.getTotalElements(),
+			assertEquals(totalSubcategories, subcategoryResponseList.getPageDetails().getTotalElements(),
 					"It should be the same number of elements");
-			assertEquals(defaultPageSize, subcategoryResponseList.getPageSize(),
+			assertEquals(defaultPageSize, subcategoryResponseList.getPageDetails().getPageSize(),
 					"The number of the items that should be showed");
-			assertEquals((totalSubcategories / defaultPageSize), subcategoryResponseList.getTotalPages());
+			assertEquals((totalSubcategories / defaultPageSize), subcategoryResponseList.getPageDetails().getTotalPages());
 			assertEquals(defaultPageSize, subcategoryResponseList.getSubcategories().size(),
 					"The number of the items that should be showed");
 			assertEquals(subcategoryResponseList.getSubcategories().get(0).getCategory().getId(),

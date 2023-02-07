@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import com.rtseki.witch.backend.api.dto.request.SubcategoryRequest;
+import com.rtseki.witch.backend.api.dto.response.PaginationDetails;
 import com.rtseki.witch.backend.api.dto.response.SubcategoryResponse;
 import com.rtseki.witch.backend.api.dto.response.SubcategoryResponseList;
 import com.rtseki.witch.backend.domain.model.Subcategory;
@@ -31,11 +32,13 @@ public class SubcategoryAssembler {
 	public SubcategoryResponseList toSubcategoryResponseList(Page<Subcategory> subcategories) {
 		SubcategoryResponseList result = new SubcategoryResponseList();
 		List<SubcategoryResponse> subcategoryResponseList = new ArrayList<>();
-
-		result.setPageNumber(subcategories.getNumber());
-		result.setTotalElements(subcategories.getTotalElements());
-		result.setPageSize(subcategories.getSize());
-		result.setTotalPages(subcategories.getTotalPages());
+		PaginationDetails pageDetails = new PaginationDetails();
+		
+		pageDetails.setPageNumber(subcategories.getNumber());
+		pageDetails.setTotalElements(subcategories.getTotalElements());
+		pageDetails.setPageSize(subcategories.getSize());
+		pageDetails.setTotalPages(subcategories.getTotalPages());
+		result.setPageDetails(pageDetails);
 
 		for (Subcategory subcategory : subcategories) {
 			SubcategoryResponse categoryResponse = modelMapper.map(subcategory, SubcategoryResponse.class);
