@@ -121,4 +121,21 @@ public class ProductTest {
 		//Assert
 	    assertThat(products).hasSize(1).contains(createdProduct1);
 	}
+	
+	@Test
+	@DisplayName("Find all products")
+	void testProductFindAll_whenFindAll_thenReturnProductList() {
+		// Arrange
+		entityManager.persistAndFlush(product);
+		Product product1 = new Product(null, "7896029017678", "Sachê Sheba Gatos Filhotes Carne ao Molho 85g", null, subcategory);
+		entityManager.persistAndFlush(product1);
+		Product product2 = new Product(null, "7896029000441", "Sachê Wiskas Salmão 85g", null, subcategory);
+		entityManager.persistAndFlush(product2);
+		
+		// Act
+		List<Product> products = repository.findAll();
+		
+		// Assert
+		assertThat(products).hasSize(3).contains(product, product1, product2);
+	}
 }

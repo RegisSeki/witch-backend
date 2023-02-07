@@ -3,6 +3,8 @@ package com.rtseki.witch.backend.api.controller;
 import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.rtseki.witch.backend.api.assembler.ProductAssembler;
 import com.rtseki.witch.backend.api.dto.request.ProductRequest;
 import com.rtseki.witch.backend.api.dto.response.ProductResponse;
+import com.rtseki.witch.backend.api.dto.response.ProductResponseList;
 import com.rtseki.witch.backend.domain.model.Product;
 import com.rtseki.witch.backend.domain.service.ProductService;
 
@@ -64,4 +67,8 @@ public class ProductController {
 		return ResponseEntity.noContent().build();
 	}
 	
+	@GetMapping
+	public ProductResponseList findAll(@PageableDefault(size = 5, page = 0) Pageable pageable) {
+		return assembler.toProductResponseList(service.findAll(pageable));
+	}
 }

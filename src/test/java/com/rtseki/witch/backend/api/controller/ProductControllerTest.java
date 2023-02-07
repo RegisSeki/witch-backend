@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -33,6 +34,7 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import com.rtseki.witch.backend.api.dto.response.AuthenticationResponse;
 import com.rtseki.witch.backend.api.dto.response.ProductResponse;
+import com.rtseki.witch.backend.api.dto.response.ProductResponseList;
 import com.rtseki.witch.backend.domain.model.Category;
 import com.rtseki.witch.backend.domain.model.Product;
 import com.rtseki.witch.backend.domain.model.Subcategory;
@@ -642,5 +644,54 @@ public class ProductControllerTest {
 				,"HTTP Status code should be 404");
         assertTrue(response.getBody().toString().contains(
         		"Resource not found. Id:"));
+	}
+	
+	@Nested
+	@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+	@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+	@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+	class ProductControllerTestProductList{
+		
+		private final int totalProducts = 20;
+		private final int defaultPageSize = 5;
+		
+		@BeforeAll
+		void init() {
+			for(int i = 0; i < totalProducts; i ++) {
+				Product product = new Product();
+				product.setSubcategory(createdSubcategory);
+				product.setBarcode("barcode" + i);
+				product.setName("Subcategory" + i);
+				product.setDescription("Subcategory description" + i);
+				repository.save(product);
+			}
+		}
+		
+		@Test
+		@DisplayName("Find all products with default pagination")
+		@Order(22)
+		void testFindAllProducts_whenDefaultPagination_thenReturnProperProducts() {
+			// Arrange
+			HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+
+			// Act
+			ResponseEntity<ProductResponseList> response = restTemplate.exchange(
+					"/api/v1/products", HttpMethod.GET, requestEntity,
+					new ParameterizedTypeReference<ProductResponseList>() {
+					});
+			ProductResponseList productResponseList = response.getBody();
+			
+			//Assert
+			assertEquals(totalProducts, productResponseList.getPageDetails().getTotalElements(),
+					"It should be the same number of elements");
+			assertEquals(defaultPageSize, productResponseList.getPageDetails().getPageSize(),
+					"The number of the items that should be showed");
+			assertEquals((totalProducts / defaultPageSize), productResponseList.getPageDetails().getTotalPages());
+			assertEquals(defaultPageSize, productResponseList.getProducts().size(),
+					"The number of the items that should be showed");
+			assertEquals(productResponseList.getProducts().get(0).getSubcategory().getId(),
+					createdProduct.getId(),
+					"The subcategory id should be the same");
+		}
 	}
 }
