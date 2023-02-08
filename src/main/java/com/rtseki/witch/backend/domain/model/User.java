@@ -18,15 +18,11 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "_users",
 		uniqueConstraints = {
@@ -68,6 +64,37 @@ public class User implements UserDetails {
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return List.of(new SimpleGrantedAuthority(role.name()));
 	}
+	
+	public User() {
+		super();
+	}
+
+	public User(Long id, @NotBlank String userId,
+			@NotBlank @Size(min = 3, max = 50) String firstname,
+			@NotBlank @Size(min = 3, max = 50) String lastname,
+			@NotBlank @Size(max = 120) @Email String email,
+			@NotBlank String password, Role role) {
+		super();
+		this.id = id;
+		this.userId = userId;
+		this.firstname = firstname;
+		this.lastname = lastname;
+		this.email = email;
+		this.password = password;
+		this.role = role;
+	}
+
+	public User(@NotBlank String userId,
+			@NotBlank @Size(min = 3, max = 50) String firstname,
+			@NotBlank @Size(min = 3, max = 50) String lastname,
+			@NotBlank @Size(max = 120) @Email String email) {
+		super();
+		this.userId = userId;
+		this.firstname = firstname;
+		this.lastname = lastname;
+		this.email = email;
+	}
+
 	
 	@Override
 	public String getPassword() {

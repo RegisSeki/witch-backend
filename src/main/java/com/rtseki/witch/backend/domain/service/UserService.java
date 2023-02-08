@@ -2,9 +2,12 @@ package com.rtseki.witch.backend.domain.service;
 
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.rtseki.witch.backend.commom.AuthenticationFacade;
 import com.rtseki.witch.backend.domain.exception.BusinessException;
 import com.rtseki.witch.backend.domain.model.Role;
 import com.rtseki.witch.backend.domain.model.User;
@@ -17,12 +20,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService {
 
-	private final UserRepository userRepository;
+	private final UserRepository repository;
 	private final PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private AuthenticationFacade auth;
 	
 	public User save(User user) {
 			
-		boolean isUsedEmail = userRepository.findByEmail(user.getEmail())
+		boolean isUsedEmail = repository.findByEmail(user.getEmail())
 				.stream().anyMatch(existUser -> !existUser.equals(user));
 		
 		if (isUsedEmail) {
@@ -39,7 +45,7 @@ public class UserService {
 				.build();
 		
 		try {
-			userRepository.save(createdUser);
+			repository.save(createdUser);
 		}
 		catch (ConstraintViolationException e) {
 			throw new BusinessException("The parameters are not correct, check and try again!");
@@ -55,9 +61,15 @@ public class UserService {
 		do {
 			userId = UUID.randomUUID().toString();
 			
-			existedUserId = userRepository.findByUserId(userId).toString();
+			existedUserId = repository.findByUserId(userId).toString();
 		} while (existedUserId != null && userId == existedUserId);
 			
 		return userId;
+	}
+	
+	public User getCurrentUser() {
+		Authentication authentication = auth.getAuthentication();
+		User currentUser = repository.findByEmailToCurrentUser(authentication.getName());
+		return currentUser;
 	}
 }
