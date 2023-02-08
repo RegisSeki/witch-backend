@@ -35,14 +35,13 @@ public class UserService {
 			throw new BusinessException("This email is already in use!");
 		}
 		
-		User createdUser = User.builder()
-				.userId(generateUserId())
-				.firstname(user.getFirstname())
-				.lastname(user.getLastname())
-				.email(user.getEmail())
-				.password(passwordEncoder.encode(user.getPassword()))
-				.role(Role.USER)
-				.build();
+		User createdUser = new User();
+				createdUser.setUserId(generateUserId());
+				createdUser.setFirstname(user.getFirstname());
+				createdUser.setLastname(user.getLastname());
+				createdUser.setEmail(user.getEmail());
+				createdUser.setPassword(passwordEncoder.encode(user.getPassword()));
+				createdUser.setRole(Role.USER);
 		
 		try {
 			repository.save(createdUser);

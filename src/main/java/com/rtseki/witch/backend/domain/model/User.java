@@ -1,5 +1,6 @@
 package com.rtseki.witch.backend.domain.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -7,22 +8,23 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder
 @Entity
 @Table(name = "_users",
 		uniqueConstraints = {
@@ -65,6 +67,9 @@ public class User implements UserDetails {
 		return List.of(new SimpleGrantedAuthority(role.name()));
 	}
 	
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+	private List<ShopList> shopLists = new ArrayList<>();
+	
 	public User() {
 		super();
 	}
@@ -95,6 +100,9 @@ public class User implements UserDetails {
 		this.email = email;
 	}
 
+	public List<ShopList> getShopLists() {
+		return shopLists;
+	}
 	
 	@Override
 	public String getPassword() {
