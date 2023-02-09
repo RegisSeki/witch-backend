@@ -19,7 +19,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "_business_establishment",
 uniqueConstraints = {
-	@UniqueConstraint(columnNames = "name")}
+	@UniqueConstraint(columnNames = "comercialName")}
 )
 public class BusinessEstablishment {
 	
@@ -33,6 +33,5 @@ public class BusinessEstablishment {
 	private String comercialName;
 	
 	private String officialName;
-	
 	private String officialRecord;
 }
