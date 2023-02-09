@@ -30,9 +30,9 @@ public class BusinessEstablishment {
 	
 	@NotBlank
 	@EqualsAndHashCode.Include
-	private String name;
+	private String comercialName;
 	
-	@NotBlank
-	@EqualsAndHashCode.Include
+	private String offcialName;
+	
 	private String officialRecord;
 }
