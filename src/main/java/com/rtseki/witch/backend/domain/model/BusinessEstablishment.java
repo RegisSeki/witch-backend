@@ -32,7 +32,7 @@ public class BusinessEstablishment {
 	@EqualsAndHashCode.Include
 	private String comercialName;
 	
-	private String offcialName;
+	private String officialName;
 	
 	private String officialRecord;
 }
