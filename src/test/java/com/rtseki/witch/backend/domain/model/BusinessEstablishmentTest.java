@@ -109,4 +109,21 @@ public class BusinessEstablishmentTest {
 		//Assert
 	    assertThat(subjects).hasSize(1).contains(createdSubject1);
 	}
+	
+	@Test
+	@DisplayName("Find all business establishments")
+	void testFindAll_whenFindAll_thenReturnBusinessEstablishmentList() {
+		// Arrange
+		testEntityManager.persistAndFlush(subject);
+		BusinessEstablishment subject1 = new BusinessEstablishment(null, "Walmart", null, null);
+		testEntityManager.persistAndFlush(subject1);
+		BusinessEstablishment subject2 = new BusinessEstablishment(null, "7 Eleven", null, null);
+		testEntityManager.persistAndFlush(subject2);
+		
+		// Act
+		List<BusinessEstablishment> subjects = repository.findAll();
+		
+		// Assert
+		assertThat(subjects).hasSize(3).contains(subject, subject1, subject2);
+	}
 }

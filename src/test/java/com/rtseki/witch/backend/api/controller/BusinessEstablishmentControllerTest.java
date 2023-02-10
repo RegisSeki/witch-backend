@@ -31,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.rtseki.witch.backend.api.dto.response.AuthenticationResponse;
 import com.rtseki.witch.backend.api.dto.response.BusinessEstablishmentResponse;
+import com.rtseki.witch.backend.api.dto.response.BusinessEstablishmentResponseList;
 import com.rtseki.witch.backend.domain.model.BusinessEstablishment;
 import com.rtseki.witch.backend.domain.model.User;
 import com.rtseki.witch.backend.domain.repository.BusinessEstablishmentRepository;
@@ -341,5 +342,38 @@ public class BusinessEstablishmentControllerTest {
 				,"HTTP Status code should be 404");
         assertTrue(response.getBody().toString().contains(
         		"Resource not found. Id:"));
+	}
+	
+	@Test
+	@DisplayName("Find all business establishments")
+	@Order(12)
+	void testFindAllBusinessEstablishments_whenDefaultPagination_thenReturnProperBusinessEstablishments() {
+		// Arrange
+		int totalSubjects = 10;
+		int defaultPageSize = 5;
+		
+		for(int i = 0; i < totalSubjects; i ++) {
+			BusinessEstablishment subject = new BusinessEstablishment();
+			subject.setComercialName("ComercialName" + i);
+			repository.save(subject);
+		}
+		
+		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+
+		// Act
+		ResponseEntity<BusinessEstablishmentResponseList> response = restTemplate.exchange(
+				"/api/v1/business-establishments", HttpMethod.GET, requestEntity,
+				new ParameterizedTypeReference<BusinessEstablishmentResponseList>() {
+				});
+		BusinessEstablishmentResponseList subjectResponseList = response.getBody();
+		
+		//Assert
+		assertEquals(totalSubjects, subjectResponseList.getPageDetails().getTotalElements(),
+				"It should be the same number of elements");
+		assertEquals(defaultPageSize, subjectResponseList.getPageDetails().getPageSize(),
+				"The number of the items that should be showed");
+		assertEquals((totalSubjects / defaultPageSize), subjectResponseList.getPageDetails().getTotalPages());
+		assertEquals(defaultPageSize, subjectResponseList.getEstablishments().size(),
+				"The number of the items that should be showed");
 	}
 }
