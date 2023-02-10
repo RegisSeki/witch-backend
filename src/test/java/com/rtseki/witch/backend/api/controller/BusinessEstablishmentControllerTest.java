@@ -20,8 +20,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -142,7 +144,7 @@ public class BusinessEstablishmentControllerTest {
 	
 	@Test
 	@DisplayName("Do not create Business Establishment")
-	@Order(1)
+	@Order(4)
 	void testCreateBusinessEstablishment_whenComercialNameAlreadyUsed_thenReturn400() throws JSONException {
 		// Arrange
 		JSONObject subjectDetailsRequestJson = new JSONObject();
@@ -161,5 +163,51 @@ public class BusinessEstablishmentControllerTest {
 				"HTTP Status code should be 400");
         assertTrue(response.getBody().toString().contains(
         		"Business Establishment name is already taken"));
+	}
+	
+	@Test
+	@DisplayName("Find business establishment by id")
+	@Order(5)
+	void testFindBusinessEstablishmentById_whenGivenCorrectId_returnProperBusinessEstablishment() {
+		// Arrange
+		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+
+		// Act
+		ResponseEntity<BusinessEstablishmentResponse> response = restTemplate.exchange(
+				"/api/v1/business-establishments/" + createdSubject.getId(), HttpMethod.GET, requestEntity,
+				new ParameterizedTypeReference<BusinessEstablishmentResponse>() {
+				});
+		
+		BusinessEstablishmentResponse subjectResponse = response.getBody();
+
+		// Assert
+		assertEquals(HttpStatus.OK, response.getStatusCode(), 
+				"HTTP Status code should be 200");
+		assertEquals(subjectResponse.getComercialName(), createdSubject.getComercialName(),
+				"Returned business establishment comercial name seems to be incorrect");
+		assertEquals(subjectResponse.getOfficialName(), createdSubject.getOfficialName(),
+				"Returned business establishment official name seems to be incorrect");
+		assertEquals(subjectResponse.getOfficialRecord(), createdSubject.getOfficialRecord(),
+				"Returned business establishment official record seems to be incorrect");
+	}
+	
+	@Test
+	@DisplayName("Do not find business establishment by id")
+	@Order(6)
+	void testFindBusinessEstablishmentById_whenGivenIncorrectId_thenReturn404() {
+		// Arrange
+		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+
+		// Act
+		ResponseEntity<String> response = restTemplate.exchange(
+				"/api/v1/business-establishments/10000", HttpMethod.GET, requestEntity,
+				new ParameterizedTypeReference<String>() {
+				});
+
+		// Assert
+		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(),
+				"HTTP Status code should be 404");
+        assertTrue(response.getBody().toString().contains(
+        		"Resource not found. Id:"));
 	}
 }

@@ -4,12 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+
+import com.rtseki.witch.backend.domain.repository.BusinessEstablishmentRepository;
 
 import jakarta.persistence.PersistenceException;
 
@@ -19,7 +23,10 @@ public class BusinessEstablishmentTest {
 	@Autowired
 	private TestEntityManager testEntityManager;
 	
-	 BusinessEstablishment subject;
+	@Autowired
+	private BusinessEstablishmentRepository repository;
+	
+	BusinessEstablishment subject;
 	
 	@BeforeEach
 	void setup() {
@@ -56,5 +63,18 @@ public class BusinessEstablishmentTest {
 		assertThrows(PersistenceException.class, () ->{
 			testEntityManager.persistAndFlush(subject);
 		}, "Was expecting a PersistenceException to be thrown." );
+	}
+	
+	@Test
+	@DisplayName("Find business establishment by id")
+	void testFindById_whenProvideCorrectId_thenReturnBusinessEstablishment() {
+		// Arrange
+		BusinessEstablishment createdSubject = testEntityManager.persistAndFlush(subject);
+		
+		// Act
+		Optional<BusinessEstablishment> foundCategory = repository.findById(createdSubject.getId());
+		
+		// Assert
+		assertEquals(foundCategory.get(), createdSubject);
 	}
 }
