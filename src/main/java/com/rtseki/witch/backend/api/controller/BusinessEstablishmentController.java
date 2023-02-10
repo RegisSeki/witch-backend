@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,6 +47,15 @@ public class BusinessEstablishmentController {
 	@GetMapping("/{businessEstablishmentId}")
 	public ResponseEntity<BusinessEstablishmentResponse> findById(@PathVariable Long businessEstablishmentId) {
 		BusinessEstablishment subject = service.findById(businessEstablishmentId);
+		return ResponseEntity.ok().body(assembler.toResponse(subject));
+	}
+	
+	@PutMapping("/{businessEstablishmentId}")
+	public ResponseEntity<BusinessEstablishmentResponse> update(
+			@Valid @RequestBody BusinessEstablishmentRequest request,
+			@PathVariable Long businessEstablishmentId
+		) {
+		BusinessEstablishment subject = service.update(businessEstablishmentId, assembler.toModel(request));
 		return ResponseEntity.ok().body(assembler.toResponse(subject));
 	}
 }

@@ -77,4 +77,18 @@ public class BusinessEstablishmentTest {
 		// Assert
 		assertEquals(foundCategory.get(), createdSubject);
 	}
+	
+	@Test
+	@DisplayName("Update business establishment")
+	void testUpdateBusinessEstablishment_whenCorrectDetails_thenReturnUpdatedBusinessEstablishment() {
+		// Arrange
+		BusinessEstablishment createdSubject = testEntityManager.persistAndFlush(subject);
+		createdSubject.setComercialName("Updated Business Establishment Comercial Name");
+		
+		// Act
+		BusinessEstablishment updatedSubject = repository.save(createdSubject);
+		
+		// Act and Assert
+		assertEquals(createdSubject, updatedSubject);
+	}
 }

@@ -30,7 +30,9 @@ import org.springframework.http.ResponseEntity;
 
 import com.rtseki.witch.backend.api.dto.response.AuthenticationResponse;
 import com.rtseki.witch.backend.api.dto.response.BusinessEstablishmentResponse;
+import com.rtseki.witch.backend.domain.model.BusinessEstablishment;
 import com.rtseki.witch.backend.domain.model.User;
+import com.rtseki.witch.backend.domain.repository.BusinessEstablishmentRepository;
 import com.rtseki.witch.backend.domain.service.AuthenticationService;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -48,6 +50,9 @@ public class BusinessEstablishmentControllerTest {
 
 	@Autowired
 	private AuthenticationService authService;
+	
+	@Autowired
+	private BusinessEstablishmentRepository repository;
 	
 	private HttpHeaders headers;
 	private BusinessEstablishmentResponse createdSubject;
@@ -162,7 +167,7 @@ public class BusinessEstablishmentControllerTest {
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
 				"HTTP Status code should be 400");
         assertTrue(response.getBody().toString().contains(
-        		"Business Establishment name is already taken"));
+        		"Business Establishment company name is already taken"));
 	}
 	
 	@Test
@@ -209,5 +214,92 @@ public class BusinessEstablishmentControllerTest {
 				"HTTP Status code should be 404");
         assertTrue(response.getBody().toString().contains(
         		"Resource not found. Id:"));
+	}
+	
+	@Test
+	@DisplayName("Update business establishment not required param - official name")
+	@Order(7)
+	void testUpdateBusinessEstablishment_whenNoRequiredParamChange_thenReturnUpdatedBusinessEstablishment() throws JSONException {
+		// Arrange
+		JSONObject updateSubjectJson = new JSONObject();
+		updateSubjectJson.put("comercialName", "Shopping Jardim Oriente");
+		updateSubjectJson.put("officialName", "Associacao Shopping Jardim Oriente - SJC");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(updateSubjectJson.toString(), headers);
+
+		// Act
+		ResponseEntity<BusinessEstablishmentResponse> response = restTemplate.exchange(
+				"/api/v1/business-establishments/" + createdSubject.getId(), HttpMethod.PUT, requestEntity,
+				new ParameterizedTypeReference<BusinessEstablishmentResponse>() {
+				});
+		BusinessEstablishmentResponse updatedSubjectResponse = response.getBody();
+
+		// Assert
+		assertEquals(HttpStatus.OK, response.getStatusCode(),
+				"HTTP Status code should be 200");
+		assertEquals(updateSubjectJson.getString("comercialName"), updatedSubjectResponse.getComercialName(),
+				"Returned comercial name seems to be incorrect");
+		assertEquals(updateSubjectJson.getString("officialName"), updatedSubjectResponse.getOfficialName(),
+				"Returned official name seems to be incorrect");
+		assertEquals(createdSubject.getId(), updatedSubjectResponse.getId(),
+				"Returned business establishment id seems to be incorrect");
+	}
+	
+	@Test
+	@DisplayName("Update business establishment required param - comercial name")
+	@Order(8)
+	void testUpdateBusinessEstablishment_whenRequiredParamChange_thenReturnUpdatedBusinessEstablishment() throws JSONException {
+		// Arrange
+		JSONObject updateSubjectJson = new JSONObject();
+		updateSubjectJson.put("comercialName", "Shibata Jardim Oriente");
+		updateSubjectJson.put("officialName", "Associacao Shopping Jardim Oriente - SJC");
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(updateSubjectJson.toString(), headers);
+
+		// Act
+		ResponseEntity<BusinessEstablishmentResponse> response = restTemplate.exchange(
+				"/api/v1/business-establishments/" + createdSubject.getId(), HttpMethod.PUT, requestEntity,
+				new ParameterizedTypeReference<BusinessEstablishmentResponse>() {
+				});
+		BusinessEstablishmentResponse updatedSubjectResponse = response.getBody();
+
+		// Assert
+		assertEquals(HttpStatus.OK, response.getStatusCode(),
+				"HTTP Status code should be 200");
+		assertEquals(updateSubjectJson.getString("comercialName"), updatedSubjectResponse.getComercialName(),
+				"Returned comercial name seems to be incorrect");
+		assertEquals(updateSubjectJson.getString("officialName"), updatedSubjectResponse.getOfficialName(),
+				"Returned official name seems to be incorrect");
+		assertEquals(createdSubject.getId(), updatedSubjectResponse.getId(),
+				"Returned business establishment id seems to be incorrect");
+	}
+	
+	@Test
+	@DisplayName("Do not update business establishment when was already used")
+	@Order(9)
+	void testUpdateBusinessEstablishment_whenCompanyNameWasAlreadyUsed_thenReturn400() throws JSONException {
+		BusinessEstablishment nameTakerSubject = new BusinessEstablishment(null, "Carrefour Dutra", null, null);
+		try {
+			// Arrange
+			nameTakerSubject = repository.save(nameTakerSubject);
+			JSONObject updateSubjectJson = new JSONObject();
+			updateSubjectJson.put("comercialName", nameTakerSubject.getComercialName());
+	
+			HttpEntity<String> requestEntity = new HttpEntity<>(updateSubjectJson.toString(), headers);
+	
+			// Act
+			ResponseEntity<String> response = restTemplate.exchange(
+					"/api/v1/business-establishments/" + createdSubject.getId(), HttpMethod.PUT, requestEntity,
+					new ParameterizedTypeReference<String>() {
+					});
+	
+			// Assert
+			assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+					"HTTP Status code should be 400");
+	        assertTrue(response.getBody().toString().contains(
+	        		"Business Establishment company name is already taken"));
+		}finally {
+			repository.delete(nameTakerSubject);
+		}
 	}
 }

@@ -11,6 +11,8 @@ import com.rtseki.witch.backend.domain.exception.ResourceNotFoundException;
 import com.rtseki.witch.backend.domain.model.BusinessEstablishment;
 import com.rtseki.witch.backend.domain.repository.BusinessEstablishmentRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class BusinessEstablishmentService {
 
@@ -28,12 +30,23 @@ public class BusinessEstablishmentService {
 			.orElseThrow(() -> new ResourceNotFoundException(businessEstablishmentId));
 	}
 	
+	public BusinessEstablishment update(Long businessEstablishmentId, BusinessEstablishment businessEstablishment) {
+		try {
+			checkDuplicatedName(businessEstablishment, businessEstablishmentId);
+			BusinessEstablishment entity = repository.getReferenceById(businessEstablishmentId);
+			updateBusinessEstablishmentData(entity, businessEstablishment);
+			return repository.save(entity);
+		} catch(EntityNotFoundException e) {
+			throw new ResourceNotFoundException(businessEstablishmentId);
+		}
+	}
+	
 	private void checkDuplicatedName(BusinessEstablishment businessEstablishment) {
 		boolean isBusinessEstablishmentExist = repository.findByComercialName(businessEstablishment.getComercialName())
 			.stream().anyMatch(existProduct -> !existProduct.equals(businessEstablishment));
 		
 		if(isBusinessEstablishmentExist) {
-			throw new BusinessException("Business Establishment name is already taken");
+			throw new BusinessException("Business Establishment company name is already taken");
 		}
 	}
 	
@@ -41,7 +54,13 @@ public class BusinessEstablishmentService {
 		Optional<BusinessEstablishment> existedBusinessEstablishment = repository.findByComercialName(businessEstablishment.getComercialName());
 		
 		if(existedBusinessEstablishment.isPresent() && existedBusinessEstablishment.get().getId() != businessEstablishmentId) {
-			throw new BusinessException("Business Establishment name is already taken");
+			throw new BusinessException("Business Establishment company name is already taken");
 		}
+	}
+	
+	private void updateBusinessEstablishmentData(BusinessEstablishment entity, BusinessEstablishment businessEstablishment) {
+		entity.setComercialName(businessEstablishment.getComercialName());
+		entity.setOfficialName(businessEstablishment.getOfficialName());
+		entity.setOfficialRecord(businessEstablishment.getOfficialRecord());
 	}
 }
