@@ -3,10 +3,13 @@ package com.rtseki.witch.backend.domain.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.rtseki.witch.backend.domain.exception.BusinessException;
+import com.rtseki.witch.backend.domain.exception.DatabaseException;
 import com.rtseki.witch.backend.domain.exception.ResourceNotFoundException;
 import com.rtseki.witch.backend.domain.model.BusinessEstablishment;
 import com.rtseki.witch.backend.domain.repository.BusinessEstablishmentRepository;
@@ -38,6 +41,16 @@ public class BusinessEstablishmentService {
 			return repository.save(entity);
 		} catch(EntityNotFoundException e) {
 			throw new ResourceNotFoundException(businessEstablishmentId);
+		}
+	}
+	
+	public void delete(Long businessEstablishmentId) {
+		try {
+			repository.deleteById(businessEstablishmentId);
+		} catch (EmptyResultDataAccessException e) {
+			throw new ResourceNotFoundException(businessEstablishmentId);
+		} catch (DataIntegrityViolationException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 	}
 	

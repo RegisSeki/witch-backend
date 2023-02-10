@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -301,5 +302,44 @@ public class BusinessEstablishmentControllerTest {
 		}finally {
 			repository.delete(nameTakerSubject);
 		}
+	}
+	
+	@Test
+	@DisplayName("Delete business establishment")
+	@Order(10)
+	void testDeleteBusinessEstablishment_whenProvidedCorrectId_thenReturn204() {
+		// Arrange 
+		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+		
+		//Act
+		ResponseEntity<Void> response = restTemplate.exchange(
+				"/api/v1/business-establishments/" + createdSubject.getId(), HttpMethod.DELETE, requestEntity,
+				Void.class);
+		List<BusinessEstablishment> subjects = repository.findAll();		
+		
+		// Assert
+		assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(),
+				"HTTP Status code should be 204");
+		assertEquals(subjects.size(), 0,
+				"It should not have any business establishment");
+	}
+	
+	@Test
+	@DisplayName("Do not delete business establishment")
+	@Order(11)
+	void testDeleteBusinessEstablishment_whenProvidedIncorrectId_thenReturn404() {
+		// Arrange 
+		HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+		
+		//Act
+		ResponseEntity<String> response = restTemplate.exchange(
+				"/api/v1/business-establishments/" + createdSubject.getId(), HttpMethod.DELETE, requestEntity,
+				String.class);
+		
+		// Assert
+		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode()
+				,"HTTP Status code should be 404");
+        assertTrue(response.getBody().toString().contains(
+        		"Resource not found. Id:"));
 	}
 }

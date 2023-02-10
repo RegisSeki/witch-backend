@@ -1,9 +1,11 @@
 package com.rtseki.witch.backend.domain.model;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -90,5 +92,21 @@ public class BusinessEstablishmentTest {
 		
 		// Act and Assert
 		assertEquals(createdSubject, updatedSubject);
+	}
+	
+	@Test
+	@DisplayName("Delete business establishment")
+	void testDeleteBusinessEstablishment_whenProvidedId_thenNothing() {
+		// Arrange
+		BusinessEstablishment createdSubject1 = testEntityManager.persistAndFlush(subject);
+		BusinessEstablishment createdSubject2 = new BusinessEstablishment(null, "Oba Hortifruti", null, null);
+		testEntityManager.persistAndFlush(createdSubject2);
+		
+		// Act
+		repository.deleteById(createdSubject2.getId());
+	    List<BusinessEstablishment> subjects = repository.findAll();
+		
+		//Assert
+	    assertThat(subjects).hasSize(1).contains(createdSubject1);
 	}
 }
