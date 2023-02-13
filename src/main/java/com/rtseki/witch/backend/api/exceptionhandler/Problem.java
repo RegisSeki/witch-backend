@@ -1,6 +1,6 @@
 package com.rtseki.witch.backend.api.exceptionhandler;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -16,7 +16,7 @@ import lombok.Setter;
 public class Problem {
 
 	private Integer status;
-	private OffsetDateTime dateHour;
+	private Instant dateHour;
 	private String title;
 	private List<Field> fields;
 	

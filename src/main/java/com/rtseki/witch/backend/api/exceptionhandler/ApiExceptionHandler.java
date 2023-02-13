@@ -1,6 +1,6 @@
 package com.rtseki.witch.backend.api.exceptionhandler;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class ApiExceptionHandler {
 		}
 		
 		problem.setStatus(status.value());
-		problem.setDateHour(OffsetDateTime.now()); 
+		problem.setDateHour(Instant.now()); 
 		problem.setTitle("One or more fields are not correct! Fill the fields correctly and try again!");
 		problem.setFields(fields);
 		
@@ -54,7 +54,7 @@ public class ApiExceptionHandler {
 		
 		Problem problem = new Problem();
 		problem.setStatus(status.value()); 
-		problem.setDateHour(OffsetDateTime.now()); 
+		problem.setDateHour(Instant.now()); 
 		problem.setTitle(ex.getMessage());
 		
 		return new ResponseEntity<>(problem, status);
@@ -66,7 +66,7 @@ public class ApiExceptionHandler {
 		
 		Problem problem = new Problem();
 		problem.setStatus(status.value()); 
-		problem.setDateHour(OffsetDateTime.now()); 
+		problem.setDateHour(Instant.now()); 
 		problem.setTitle(ex.getMessage());
 
 		return new ResponseEntity<>(problem, status);
@@ -78,7 +78,7 @@ public class ApiExceptionHandler {
 		
 		Problem problem = new Problem();
 		problem.setStatus(status.value()); 
-		problem.setDateHour(OffsetDateTime.now()); 
+		problem.setDateHour(Instant.now()); 
 		problem.setTitle(ex.getMessage());
 
 		return new ResponseEntity<>(problem, status);
