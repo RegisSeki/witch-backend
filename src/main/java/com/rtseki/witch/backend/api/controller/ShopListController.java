@@ -17,9 +17,11 @@ import com.rtseki.witch.backend.domain.model.ShopList;
 import com.rtseki.witch.backend.domain.service.ShopListService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/shoplists")
+@RequestMapping("/api/v1/shop-lists")
+@RequiredArgsConstructor
 public class ShopListController {
 	
 	@Autowired

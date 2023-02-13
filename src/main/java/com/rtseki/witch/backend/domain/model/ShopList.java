@@ -33,7 +33,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "_shop_list",
 uniqueConstraints = {
-	@UniqueConstraint(columnNames = "name")}
+	@UniqueConstraint(columnNames = {"name", "user_id"})}
 )
 public class ShopList {
 	
