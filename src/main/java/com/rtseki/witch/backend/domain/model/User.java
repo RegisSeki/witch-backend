@@ -78,12 +78,7 @@ public class User implements UserDetails {
 		super();
 	}
 
-	public User(Long id, @NotBlank String userId,
-			@NotBlank @Size(min = 3, max = 50) String firstname,
-			@NotBlank @Size(min = 3, max = 50) String lastname,
-			@NotBlank @Size(max = 120) @Email String email,
-			@NotBlank String password, Role role) {
-		super();
+	public User(Long id, String userId, String firstname, String lastname, String email, String password, Role role) {
 		this.id = id;
 		this.userId = userId;
 		this.firstname = firstname;
@@ -93,11 +88,8 @@ public class User implements UserDetails {
 		this.role = role;
 	}
 
-	public User(@NotBlank String userId,
-			@NotBlank @Size(min = 3, max = 50) String firstname,
-			@NotBlank @Size(min = 3, max = 50) String lastname,
-			@NotBlank @Size(max = 120) @Email String email) {
-		super();
+	public User(Long id, String userId, String firstname, String lastname, String email) {
+		this.id = id;
 		this.userId = userId;
 		this.firstname = firstname;
 		this.lastname = lastname;
