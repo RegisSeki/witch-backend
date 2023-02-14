@@ -11,10 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.rtseki.witch.backend.domain.exception.BusinessException;
 import com.rtseki.witch.backend.domain.model.ShopList;
 import com.rtseki.witch.backend.domain.model.Status;
-import com.rtseki.witch.backend.domain.model.User;
 import com.rtseki.witch.backend.domain.repository.ShopListRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class ShopListService {
 
 	@Autowired
@@ -23,12 +25,9 @@ public class ShopListService {
 	@Autowired
 	private UserService userService;
 	
-//	private final User currentUser = userService.getCurrentUser();
-	
 	@Transactional
 	public ShopList create(ShopList shopList) {
-		User currentUser = userService.getCurrentUser();
-		shopList.setUser(currentUser);
+		shopList.setUser(userService.getCurrentUser());
 		checkDuplicatedName(shopList);
 		shopList.setStatus(Status.OPEN);
 		shopList.setCreatedAt(Instant.now());
@@ -36,8 +35,7 @@ public class ShopListService {
 	}
 	
 	public Page<ShopList> findAll(Pageable pageable) {
-		User currentUser = userService.getCurrentUser();
-		return repository.findAllByUser_Id(pageable, currentUser.getId());
+		return repository.findAllByUser_Id(pageable, userService.getCurrentUser().getId());
 	}
 	
 	private void checkDuplicatedName(ShopList shopList) {
