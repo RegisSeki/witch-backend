@@ -3,6 +3,8 @@ package com.rtseki.witch.backend.domain.service;
 import java.time.Instant;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,8 @@ public class ShopListService {
 	@Autowired
 	private UserService userService;
 	
+//	private final User currentUser = userService.getCurrentUser();
+	
 	@Transactional
 	public ShopList create(ShopList shopList) {
 		User currentUser = userService.getCurrentUser();
@@ -29,6 +33,11 @@ public class ShopListService {
 		shopList.setStatus(Status.OPEN);
 		shopList.setCreatedAt(Instant.now());
 		return repository.save(shopList);
+	}
+	
+	public Page<ShopList> findAll(Pageable pageable) {
+		User currentUser = userService.getCurrentUser();
+		return repository.findAllByUser_Id(pageable, currentUser.getId());
 	}
 	
 	private void checkDuplicatedName(ShopList shopList) {

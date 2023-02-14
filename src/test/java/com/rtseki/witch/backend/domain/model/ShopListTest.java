@@ -1,10 +1,12 @@
 package com.rtseki.witch.backend.domain.model;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
+import com.rtseki.witch.backend.domain.repository.ShopListRepository;
+
 import jakarta.persistence.PersistenceException;
 
 @DataJpaTest
@@ -21,6 +25,9 @@ public class ShopListTest {
 
 	@Autowired
 	private TestEntityManager entityManager;
+	
+	@Autowired
+	private ShopListRepository repository;
 	
 	ShopList shopList;
 	User user;
@@ -69,5 +76,28 @@ public class ShopListTest {
 		assertThrows(PersistenceException.class, () ->{
 			entityManager.persistAndFlush(shopList);
 		}, "Was expecting a PersistenceException to be thrown." );
+	}
+	
+	@Test
+	@DisplayName("Find all shoplist")
+	void testFindAll_whenFindAll_thenReturnShopLists() {
+		// Arrange
+		entityManager.persistAndFlush(shopList);
+		
+		ShopList shopList1 = new ShopList();
+		shopList1.setName("Second shop list");
+		shopList1.setUser(user);
+		entityManager.persistAndFlush(shopList1);
+		
+		ShopList shopList2 = new ShopList();
+		shopList2.setName("Third shop list");
+		shopList2.setUser(user);
+		entityManager.persistAndFlush(shopList2);
+		
+		// Act
+		List<ShopList> shopLists = repository.findAll();
+		
+		// Assert
+		assertThat(shopLists).hasSize(3).contains(shopList, shopList1, shopList2);
 	}
 }
